@@ -1,0 +1,188 @@
+import { useEffect, useState } from "react";
+import { useFleet, type NewBoilerInput } from "../store";
+import { CloseIcon, PlusIcon } from "./icons";
+
+const EMPTY: NewBoilerInput = {
+  name: "",
+  type: "Fire-tube",
+  capacity: "",
+  pressureRating: "",
+  manufacturer: "",
+  installDate: new Date().toISOString().slice(0, 10),
+  location: "",
+  inspectionIntervalDays: 365,
+};
+
+const TYPES = [
+  "Fire-tube",
+  "Water-tube",
+  "Electric",
+  "Condensing",
+  "Combi",
+  "Other",
+];
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+const inputCls =
+  "input";
+
+export function AddBoilerModal({ onClose }: { onClose: () => void }) {
+  const { addBoiler } = useFleet();
+  const [form, setForm] = useState<NewBoilerInput>(EMPTY);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  function set<K extends keyof NewBoilerInput>(key: K, value: NewBoilerInput[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) return;
+    addBoiler({
+      ...form,
+      name: form.name.trim(),
+      location: form.location.trim() || "Unassigned",
+    });
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+      <button type="button" aria-label="Close" className="absolute inset-0" onClick={onClose} />
+      <form
+        onSubmit={submit}
+        className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-white p-6 shadow-2xl"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900">Add a boiler</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Field label="Name">
+              <input
+                autoFocus
+                value={form.name}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder="e.g. Riverside A2"
+                className={inputCls}
+              />
+            </Field>
+          </div>
+          <Field label="Type">
+            <select
+              value={form.type}
+              onChange={(e) => set("type", e.target.value)}
+              className={inputCls}
+            >
+              {TYPES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Capacity">
+            <input
+              value={form.capacity}
+              onChange={(e) => set("capacity", e.target.value)}
+              placeholder="e.g. 5,000 kg/h"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Pressure rating">
+            <input
+              value={form.pressureRating}
+              onChange={(e) => set("pressureRating", e.target.value)}
+              placeholder="e.g. 12 bar"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Manufacturer">
+            <input
+              value={form.manufacturer}
+              onChange={(e) => set("manufacturer", e.target.value)}
+              placeholder="e.g. Fulton"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Install date">
+            <input
+              type="date"
+              value={form.installDate}
+              onChange={(e) => set("installDate", e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Inspection interval (days)">
+            <input
+              type="number"
+              min={1}
+              value={form.inspectionIntervalDays}
+              onChange={(e) =>
+                set("inspectionIntervalDays", Number(e.target.value) || 365)
+              }
+              className={inputCls}
+            />
+          </Field>
+          <div className="sm:col-span-2">
+            <Field label="Location">
+              <input
+                value={form.location}
+                onChange={(e) => set("location", e.target.value)}
+                placeholder="e.g. Riverside Plant — Hall A"
+                className={inputCls}
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!form.name.trim()}
+            className="btn-primary"
+          >
+            <PlusIcon className="h-4 w-4" />
+            Add boiler
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

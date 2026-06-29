@@ -1,0 +1,87 @@
+export const WORKFLOW_STEPS = [
+  { key: "inspection", label: "Inspection Done" },
+  { key: "invoice", label: "Invoice Received" },
+  { key: "po", label: "PO Issued" },
+  { key: "certificate_received", label: "Certificate Received" },
+  { key: "certificate_installed", label: "Certificate Installed" },
+] as const;
+
+export type WorkflowStepKey = (typeof WORKFLOW_STEPS)[number]["key"];
+
+export interface WorkflowStep {
+  key: WorkflowStepKey;
+  label: string;
+  completed: boolean;
+  /** ISO timestamp captured when the step is marked complete. */
+  completedAt: string | null;
+  notes: string;
+}
+
+export interface RepairLog {
+  id: string;
+  /** ISO timestamp the repair was logged. */
+  loggedAt: string;
+  description: string;
+}
+
+export type InspectionResult = "pass" | "fail";
+export type InspectionStatus = "in-progress" | "completed";
+
+export interface Inspection {
+  id: string;
+  /** Calendar date of the inspection (yyyy-mm-dd). */
+  date: string;
+  /** ISO timestamp the inspection round started. */
+  startedAt: string;
+  /** ISO timestamp the inspection round was completed (all steps done). */
+  completedAt: string | null;
+  notes: string;
+  result: InspectionResult;
+  steps: WorkflowStep[];
+  repairs: RepairLog[];
+  status: InspectionStatus;
+}
+
+export interface Boiler {
+  id: string;
+  name: string;
+  type: string;
+  capacity: string;
+  pressureRating: string;
+  manufacturer: string;
+  installDate: string;
+  location: string;
+  /** How often (in days) this boiler must be inspected. */
+  inspectionIntervalDays: number;
+  activeInspection: Inspection | null;
+  history: Inspection[];
+}
+
+/** The full shared application state (persisted locally or to Supabase). */
+export interface AppState {
+  boilers: Boiler[];
+  activity: ActivityEntry[];
+}
+
+export interface ActivityEntry {
+  id: string;
+  /** ISO timestamp the change was recorded. */
+  at: string;
+  boilerId: string | null;
+  boilerName: string;
+  /** Short, human-readable description of what happened. */
+  summary: string;
+  /** Optional before value for edits. */
+  from?: string;
+  /** Optional after value for edits. */
+  to?: string;
+}
+
+/**
+ * Visual status derived from a boiler's inspection state.
+ * - failed:  red   — failed its last inspection, needs repairs
+ * - active:  amber — an inspection is underway
+ * - passed:  green — passed and everything is complete
+ * - none:    gray  — no inspection has been started yet
+ */
+export type BoilerStatus = "failed" | "active" | "passed" | "none";
