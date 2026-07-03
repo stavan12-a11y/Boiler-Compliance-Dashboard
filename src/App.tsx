@@ -1,9 +1,8 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { FleetProvider, useFleet } from "./store";
 import { boilerToCsv, downloadCsv, slugify } from "./lib/csv";
 import { getBoilerStatus } from "./lib/derive";
-import { filterBoilersByKpi, KPI_FILTER_LABELS } from "./lib/kpi";
-import type { BoilerStatus, KpiFilterKey } from "./types";
+import type { BoilerStatus } from "./types";
 import { SummaryCards } from "./components/SummaryCards";
 import { BoilerCard } from "./components/BoilerCard";
 import { Sidebar } from "./components/Sidebar";
@@ -15,7 +14,6 @@ import { StatusDot } from "./components/ui";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginScreen } from "./auth/LoginScreen";
 import {
-  CloseIcon,
   DownloadIcon,
   FlameIcon,
   LoaderIcon,
@@ -39,15 +37,13 @@ function Dashboard() {
   const [adding, setAdding] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
   const [filter, setFilter] = useState<BoilerStatus | "all">("all");
-  const [kpiFilter, setKpiFilter] = useState<KpiFilterKey>("all");
   const [query, setQuery] = useState("");
-  const fleetRef = useRef<HTMLDivElement>(null);
 
   const selected = boilers.find((b) => b.id === selectedId) ?? null;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return filterBoilersByKpi(boilers, kpiFilter).filter((b) => {
+    return boilers.filter((b) => {
       if (filter !== "all" && getBoilerStatus(b) !== filter) return false;
       if (!q) return true;
       return (
@@ -59,12 +55,7 @@ function Dashboard() {
         b.nationalBoardNumber.toLowerCase().includes(q)
       );
     });
-  }, [boilers, kpiFilter, filter, query]);
-
-  function handleSelectKpi(kpi: KpiFilterKey) {
-    setKpiFilter(kpi);
-    fleetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  }, [boilers, filter, query]);
 
   function handleReset() {
     if (
@@ -74,7 +65,6 @@ function Dashboard() {
     ) {
       resetToDemo();
       setSelectedId(null);
-      setKpiFilter("all");
     }
   }
 
@@ -137,20 +127,17 @@ function Dashboard() {
             Fleet Compliance Overview
           </h2>
           <p className="text-sm text-slate-500">
-            Click a KPI card to filter the fleet below to those boilers.
+            Inspection status and safety compliance across all monitored boilers.
           </p>
         </div>
 
-        <SummaryCards
-          boilers={boilers}
-          activeKpi={kpiFilter}
-          onSelectKpi={handleSelectKpi}
-        />
+        <SummaryCards boilers={boilers} />
 
-        <div ref={fleetRef} className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          <div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
+        <Sidebar boilers={boilers} onSelect={setSelectedId} />
+
+        <div>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
               <button
                 type="button"
                 onClick={() => setAdding(true)}
@@ -158,28 +145,10 @@ function Dashboard() {
               >
                 <PlusIcon className="h-4 w-4" />
                 Add boiler
-              </button>
-            </div>
+            </button>
+          </div>
 
-            {kpiFilter !== "all" && (
-              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-maroon-100 bg-maroon-50 px-3 py-2 text-sm text-maroon-900">
-                <span>
-                  Showing <strong>{visible.length}</strong> boiler
-                  {visible.length === 1 ? "" : "s"} for{" "}
-                  <strong>{KPI_FILTER_LABELS[kpiFilter]}</strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setKpiFilter("all")}
-                  className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-maroon-800 ring-1 ring-maroon-200 transition hover:bg-maroon-100"
-                >
-                  <CloseIcon className="h-3 w-3" />
-                  Clear KPI filter
-                </button>
-              </div>
-            )}
-
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 {FILTERS.map((f) => (
                   <button
@@ -213,7 +182,7 @@ function Dashboard() {
                   No boilers match your filters
                 </p>
                 <p className="text-xs text-slate-400">
-                  Try a different KPI, status filter, or search term.
+                  Try a different filter or search term.
                 </p>
               </div>
             ) : (
@@ -233,9 +202,6 @@ function Dashboard() {
                 ))}
               </div>
             )}
-          </div>
-
-          <Sidebar boilers={boilers} onSelect={setSelectedId} />
         </div>
       </main>
 

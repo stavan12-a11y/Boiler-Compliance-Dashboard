@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Boiler, KpiFilterKey } from "../types";
+import type { Boiler } from "../types";
 import { getFleetStats } from "../lib/derive";
 import { complianceRate, countCompliant } from "../lib/kpi";
 import { formatAverageDuration } from "../lib/helpers";
@@ -11,23 +11,15 @@ function Card({
   hint,
   icon,
   accent,
-  active,
-  onClick,
 }: {
   label: string;
   value: ReactNode;
   hint?: string;
   icon: ReactNode;
   accent: string;
-  active?: boolean;
-  onClick?: () => void;
 }) {
-  const className = `card flex w-full items-center gap-4 p-4 text-left transition ${
-    onClick ? "cursor-pointer hover:shadow-card-hover" : ""
-  } ${active ? "ring-2 ring-maroon-700 ring-offset-2" : ""}`;
-
-  const body = (
-    <>
+  return (
+    <div className="card flex items-center gap-4 p-4">
       <div
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent}`}
       >
@@ -40,29 +32,11 @@ function Card({
         </p>
         {hint ? <p className="text-[11px] text-slate-400">{hint}</p> : null}
       </div>
-    </>
+    </div>
   );
-
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={className} title={`Show ${label.toLowerCase()}`}>
-        {body}
-      </button>
-    );
-  }
-
-  return <div className={className}>{body}</div>;
 }
 
-export function SummaryCards({
-  boilers,
-  activeKpi,
-  onSelectKpi,
-}: {
-  boilers: Boiler[];
-  activeKpi: KpiFilterKey;
-  onSelectKpi: (kpi: KpiFilterKey) => void;
-}) {
+export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
   const stats = getFleetStats(boilers);
   const rate = complianceRate(boilers);
   const avgDowntime = formatAverageDuration(stats.completedDurations);
@@ -74,8 +48,6 @@ export function SummaryCards({
         value={stats.total}
         icon={<LayersIcon className="h-5 w-5 text-slate-700" />}
         accent="bg-slate-100"
-        active={activeKpi === "all"}
-        onClick={() => onSelectKpi("all")}
       />
       <Card
         label="Compliance rate"
@@ -83,8 +55,6 @@ export function SummaryCards({
         hint={`${countCompliant(boilers)} passed & complete`}
         icon={<CheckIcon className="h-5 w-5 text-emerald-600" />}
         accent="bg-emerald-50"
-        active={activeKpi === "compliant"}
-        onClick={() => onSelectKpi("compliant")}
       />
       <Card
         label="Overdue inspections"
@@ -94,16 +64,12 @@ export function SummaryCards({
         }
         icon={<ClockIcon className="h-5 w-5 text-orange-600" />}
         accent="bg-orange-50"
-        active={activeKpi === "overdue"}
-        onClick={() => onSelectKpi("overdue")}
       />
       <Card
         label="Failed / needs repair"
         value={stats.failed}
         icon={<AlertIcon className="h-5 w-5 text-red-600" />}
         accent="bg-red-50"
-        active={activeKpi === "failed"}
-        onClick={() => onSelectKpi("failed")}
       />
       <Card
         label="Average downtime"
@@ -111,8 +77,6 @@ export function SummaryCards({
         hint={`${stats.completedDurations.length} completed inspections`}
         icon={<ClockIcon className="h-5 w-5 text-sky-600" />}
         accent="bg-sky-50"
-        active={activeKpi === "withDowntime"}
-        onClick={() => onSelectKpi("withDowntime")}
       />
     </div>
   );
