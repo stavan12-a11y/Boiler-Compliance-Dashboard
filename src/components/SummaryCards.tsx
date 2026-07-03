@@ -52,7 +52,7 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
       <Card
         label="Compliance rate"
         value={`${rate}%`}
-        hint={`${countCompliant(boilers)} passed & complete`}
+        hint={`${countCompliant(boilers)} compliant (not overdue)`}
         icon={<CheckIcon className="h-5 w-5 text-emerald-600" />}
         accent="bg-emerald-50"
       />

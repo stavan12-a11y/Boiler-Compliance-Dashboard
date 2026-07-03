@@ -9,7 +9,7 @@ import { uid } from "./helpers";
 
 export const KPI_FILTER_LABELS: Record<KpiFilterKey, string> = {
   all: "All boilers",
-  compliant: "Passed & complete",
+  compliant: "Compliant (passed & not overdue)",
   overdue: "Overdue inspections",
   dueSoon: "Due within 30 days",
   failed: "Failed / needs repair",
@@ -27,7 +27,9 @@ export const KPI_TREND_LABELS: Record<KpiTrendMetric, string> = {
 };
 
 export function isBoilerCompliant(boiler: Boiler): boolean {
-  return getBoilerStatus(boiler) === "passed";
+  return (
+    getBoilerStatus(boiler) === "passed" && !getScheduleInfo(boiler).isOverdue
+  );
 }
 
 export function boilerHasCompletedInspection(boiler: Boiler): boolean {

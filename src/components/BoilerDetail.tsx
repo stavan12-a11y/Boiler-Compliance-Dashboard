@@ -121,7 +121,7 @@ export function BoilerDetail({
                   Overdue by {schedule.daysOverdue} days
                 </Warning>
               )}
-              {schedule.isDueSoon && (
+              {schedule.isDueSoon && !schedule.isOverdue && (
                 <Warning tone="warn">
                   <ClockIcon className="h-3 w-3" />
                   Due in {schedule.daysUntilDue} days

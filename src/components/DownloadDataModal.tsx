@@ -18,8 +18,8 @@ const CURRENT_DOWNLOADS: {
   { key: "fleet", label: "Full fleet register", filename: "fleet-register.csv" },
   {
     key: "compliant",
-    label: "Passed & complete boilers",
-    filename: "passed-complete-boilers.csv",
+    label: "Compliant boilers",
+    filename: "compliant-boilers.csv",
   },
   {
     key: "overdue",

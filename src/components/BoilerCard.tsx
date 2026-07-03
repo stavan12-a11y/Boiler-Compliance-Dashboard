@@ -17,6 +17,25 @@ const BANNER: Record<ReturnType<typeof getBoilerStatus>, string> = {
   none: "bg-slate-500",
 };
 
+function cardBannerClass(
+  status: ReturnType<typeof getBoilerStatus>,
+  isOverdue: boolean
+): string {
+  if (status === "failed") return BANNER.failed;
+  if (isOverdue) return "bg-orange-600";
+  return BANNER[status];
+}
+
+function cardRingClass(
+  status: ReturnType<typeof getBoilerStatus>,
+  isOverdue: boolean
+): string {
+  if (status === "failed") return "ring-2 ring-red-500/40";
+  if (isOverdue) return "ring-2 ring-orange-500/50";
+  if (status === "passed") return "ring-2 ring-emerald-500/50";
+  return "";
+}
+
 export function BoilerCard({
   boiler,
   onOpen,
@@ -29,22 +48,30 @@ export function BoilerCard({
   const status = getBoilerStatus(boiler);
   const meta = STATUS_META[status];
   const schedule = getScheduleInfo(boiler);
+  const isOverdue = schedule.isOverdue;
+  const bannerLabel =
+    isOverdue && status !== "failed"
+      ? "Overdue inspection"
+      : meta.label;
 
   return (
     <div
-      className={`card group flex flex-col overflow-hidden transition-all hover:shadow-card-hover ${
-        status === "passed" ? "ring-2 ring-emerald-500/50" : ""
-      } ${status === "failed" ? "ring-2 ring-red-500/40" : ""}`}
+      className={`card group flex flex-col overflow-hidden transition-all hover:shadow-card-hover ${cardRingClass(status, isOverdue)}`}
     >
       <div
-        className={`flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wide text-white ${BANNER[status]}`}
+        className={`flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wide text-white ${cardBannerClass(status, isOverdue)}`}
       >
-        <span>{meta.label}</span>
-        {status === "active" && (
+        <span>{bannerLabel}</span>
+        {status === "active" && !isOverdue && (
           <span className="rounded bg-white/20 px-1.5 py-0.5">In progress</span>
         )}
-        {status === "passed" && (
+        {status === "passed" && !isOverdue && (
           <span className="rounded bg-white/20 px-1.5 py-0.5">Certified</span>
+        )}
+        {isOverdue && status !== "failed" && (
+          <span className="rounded bg-white/20 px-1.5 py-0.5">
+            {schedule.daysOverdue}d overdue
+          </span>
         )}
       </div>
 
@@ -82,12 +109,24 @@ export function BoilerCard({
         </div>
       </button>
 
-      <div className="border-t border-slate-100 px-4 py-2.5">
+      <div
+        className={`border-t px-4 py-2.5 ${
+          isOverdue ? "border-orange-100 bg-orange-50/40" : "border-slate-100"
+        }`}
+      >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 text-xs text-slate-600">
-            <ClockIcon className="h-3.5 w-3.5 text-slate-400" />
+          <span
+            className={`flex items-center gap-1.5 text-xs ${
+              isOverdue ? "font-medium text-orange-800" : "text-slate-600"
+            }`}
+          >
+            <ClockIcon
+              className={`h-3.5 w-3.5 ${
+                isOverdue ? "text-orange-500" : "text-slate-400"
+              }`}
+            />
             Next due:{" "}
-            <span className="font-semibold text-slate-800">
+            <span className={isOverdue ? "font-bold" : "font-semibold text-slate-800"}>
               {schedule.nextDueLabel}
             </span>
           </span>
@@ -104,13 +143,13 @@ export function BoilerCard({
               <CopyIcon className="h-3 w-3" />
               Duplicate
             </button>
-            {schedule.isOverdue && (
+            {isOverdue && (
               <Warning tone="danger">
                 <AlertIcon className="h-3 w-3" />
                 Overdue {schedule.daysOverdue}d
               </Warning>
             )}
-            {schedule.isDueSoon && (
+            {schedule.isDueSoon && !isOverdue && (
               <Warning tone="warn">
                 <ClockIcon className="h-3 w-3" />
                 Due in {schedule.daysUntilDue}d
