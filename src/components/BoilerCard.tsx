@@ -21,7 +21,7 @@ function cardBannerClass(
   isOverdue: boolean
 ): string {
   if (status === "failed") return BANNER.failed;
-  if (isOverdue) return "bg-orange-600";
+  if (isOverdue) return "bg-yellow-500";
   return BANNER[status];
 }
 
@@ -30,7 +30,7 @@ function cardRingClass(
   isOverdue: boolean
 ): string {
   if (status === "failed") return "ring-2 ring-red-500/40";
-  if (isOverdue) return "ring-2 ring-orange-500/50";
+  if (isOverdue) return "ring-2 ring-yellow-400/50";
   if (status === "passed") return "ring-2 ring-emerald-500/50";
   return "";
 }

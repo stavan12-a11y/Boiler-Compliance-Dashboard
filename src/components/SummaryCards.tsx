@@ -62,8 +62,8 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
         hint={
           stats.dueSoon > 0 ? `${stats.dueSoon} due within 30 days` : undefined
         }
-        icon={<ClockIcon className="h-5 w-5 text-orange-600" />}
-        accent="bg-orange-50"
+        icon={<ClockIcon className="h-5 w-5 text-yellow-600" />}
+        accent="bg-yellow-50"
       />
       <Card
         label="Failed / needs repair"
