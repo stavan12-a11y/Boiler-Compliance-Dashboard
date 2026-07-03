@@ -17,8 +17,8 @@ function LastInspectionSummary({ boiler }: { boiler: Boiler }) {
   if (last.result === "pass") {
     const durationMs = inspectionDurationMs(last);
     return (
-      <div className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/80 p-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+      <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
           <CheckIcon className="h-4 w-4" />
           Last inspection passed &amp; complete
         </div>
@@ -37,8 +37,8 @@ function LastInspectionSummary({ boiler }: { boiler: Boiler }) {
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-amber-100 bg-amber-50/80 p-3">
-      <div className="flex items-center gap-2 text-sm font-semibold text-amber-700">
+    <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
+      <div className="flex items-center gap-2 text-sm font-semibold text-amber-800">
         <RefreshIcon className="h-4 w-4" />
         Re-inspection required
       </div>
@@ -87,7 +87,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
               onClick={() => setResult("pass")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                 result === "pass"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
@@ -98,7 +98,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
               onClick={() => setResult("fail")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                 result === "fail"
-                  ? "border-rose-200 bg-rose-50 text-rose-700"
+                  ? "border-rose-300 bg-rose-50 text-rose-800"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >

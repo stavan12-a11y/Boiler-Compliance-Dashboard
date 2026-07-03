@@ -27,7 +27,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-maroon-800 to-maroon-900 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-maroon-850 to-maroon-900 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center text-white">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">

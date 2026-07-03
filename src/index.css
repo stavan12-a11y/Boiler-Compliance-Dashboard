@@ -34,7 +34,7 @@ body,
   }
 
   .btn-primary {
-    @apply btn bg-maroon-800 text-white hover:bg-maroon-700 focus-visible:ring-maroon-600;
+    @apply btn bg-maroon-850 text-white hover:bg-maroon-800 focus-visible:ring-maroon-700;
   }
 
   .btn-secondary {

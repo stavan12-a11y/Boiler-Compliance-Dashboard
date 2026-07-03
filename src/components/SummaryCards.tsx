@@ -53,7 +53,7 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
         label="Compliance rate"
         value={`${rate}%`}
         hint={`${countCompliant(boilers)} compliant (not overdue)`}
-        icon={<CheckIcon className="h-5 w-5 text-emerald-400" />}
+        icon={<CheckIcon className="h-5 w-5 text-emerald-500" />}
         accent="bg-emerald-50"
       />
       <Card
@@ -62,20 +62,20 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
         hint={
           stats.dueSoon > 0 ? `${stats.dueSoon} due within 30 days` : undefined
         }
-        icon={<ClockIcon className="h-5 w-5 text-orange-400" />}
+        icon={<ClockIcon className="h-5 w-5 text-orange-500" />}
         accent="bg-orange-50"
       />
       <Card
         label="Failed / needs repair"
         value={stats.failed}
-        icon={<AlertIcon className="h-5 w-5 text-rose-400" />}
+        icon={<AlertIcon className="h-5 w-5 text-rose-500" />}
         accent="bg-rose-50"
       />
       <Card
         label="Average downtime"
         value={avgDowntime}
         hint={`${stats.completedDurations.length} completed inspections`}
-        icon={<ClockIcon className="h-5 w-5 text-sky-400" />}
+        icon={<ClockIcon className="h-5 w-5 text-sky-500" />}
         accent="bg-sky-50"
       />
     </div>

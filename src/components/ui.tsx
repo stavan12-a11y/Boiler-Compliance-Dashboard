@@ -26,10 +26,10 @@ export function StatusDot({
 }
 
 const BADGE_RING: Record<BoilerStatus, string> = {
-  failed: "bg-rose-50 text-rose-700 ring-rose-200/60",
-  active: "bg-amber-50 text-amber-700 ring-amber-200/60",
-  passed: "bg-emerald-50 text-emerald-700 ring-emerald-200/60",
-  none: "bg-slate-50 text-slate-600 ring-slate-200/60",
+  failed: "bg-rose-100 text-rose-800 ring-rose-300/50",
+  active: "bg-amber-100 text-amber-800 ring-amber-300/50",
+  passed: "bg-emerald-100 text-emerald-800 ring-emerald-300/50",
+  none: "bg-slate-100 text-slate-700 ring-slate-300/50",
 };
 
 export function StatusBadge({ status }: { status: BoilerStatus }) {
@@ -53,8 +53,8 @@ export function Warning({
 }) {
   const styles =
     tone === "danger"
-      ? "bg-rose-50 text-rose-700 ring-rose-200/60"
-      : "bg-amber-50 text-amber-700 ring-amber-200/60";
+      ? "bg-rose-100 text-rose-800 ring-rose-300/50"
+      : "bg-amber-100 text-amber-800 ring-amber-300/50";
   return (
     <span
       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${styles}`}
@@ -103,7 +103,7 @@ export function InlineText({
         setDraft(e.target.value),
       onBlur: commit,
       className:
-        "w-full resize-none rounded-md border border-maroon-500 bg-white px-2.5 py-1.5 text-xs text-slate-700 shadow-sm outline-none ring-1 ring-maroon-500/20",
+        "w-full resize-none rounded-md border border-maroon-600 bg-white px-2.5 py-1.5 text-xs text-slate-700 shadow-sm outline-none ring-1 ring-maroon-600/25",
     };
     return multiline ? (
       <textarea
@@ -204,7 +204,7 @@ export function EditableField({
               if (e.key === "Escape") cancel();
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) commit();
             }}
-            className="w-full resize-none rounded-md border border-maroon-500 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm outline-none ring-1 ring-maroon-500/20"
+            className="w-full resize-none rounded-md border border-maroon-600 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm outline-none ring-1 ring-maroon-600/25"
           />
         ) : (
           <input
@@ -217,7 +217,7 @@ export function EditableField({
               if (e.key === "Escape") cancel();
               if (e.key === "Enter") commit();
             }}
-            className="w-full rounded-md border border-maroon-500 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm outline-none ring-1 ring-maroon-500/20"
+            className="w-full rounded-md border border-maroon-600 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm outline-none ring-1 ring-maroon-600/25"
           />
         )
       ) : (
