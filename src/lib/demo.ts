@@ -52,7 +52,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Cleaver-Brooks",
       installDate: "2016-04-12",
       location: "Riverside Plant — Hall A",
-      inspectionIntervalDays: 365,
+      inspectionIntervalYears: 1,
       activeInspection: null,
       history: [
         {
@@ -98,7 +98,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Fulton",
       installDate: "2019-09-01",
       location: "North Dock — Boiler House 2",
-      inspectionIntervalDays: 365,
+      inspectionIntervalYears: 1,
       activeInspection: {
         id: "insp_northdock_active",
         date: dateOnly(3),
@@ -126,7 +126,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Viessmann",
       installDate: "2021-02-20",
       location: "West Annex — Mechanical Room",
-      inspectionIntervalDays: 180,
+      inspectionIntervalYears: 0.5,
       activeInspection: {
         id: "insp_westannex_failed",
         date: dateOnly(5),
@@ -175,7 +175,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Hurst",
       installDate: dateOnly(500),
       location: "South Yard — Skid 7",
-      inspectionIntervalDays: 365,
+      inspectionIntervalYears: 1,
       activeInspection: null,
       history: [],
     },
@@ -190,7 +190,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Chromalox",
       installDate: dateOnly(345),
       location: "R&D Building — Sub-basement",
-      inspectionIntervalDays: 365,
+      inspectionIntervalYears: 1,
       activeInspection: null,
       history: [],
     },
@@ -205,7 +205,7 @@ export function createDemoBoilers(): Boiler[] {
       manufacturer: "Babcock",
       installDate: "2014-07-30",
       location: "Central Energy Centre — Hall 1",
-      inspectionIntervalDays: 365,
+      inspectionIntervalYears: 1,
       activeInspection: null,
       history: [
         {

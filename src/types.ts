@@ -51,8 +51,8 @@ export interface Boiler {
   manufacturer: string;
   installDate: string;
   location: string;
-  /** How often (in days) this boiler must be inspected. */
-  inspectionIntervalDays: number;
+  /** How often (in years) this boiler must be inspected. */
+  inspectionIntervalYears: number;
   activeInspection: Inspection | null;
   history: Inspection[];
 }

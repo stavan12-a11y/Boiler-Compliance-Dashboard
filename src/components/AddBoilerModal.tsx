@@ -10,7 +10,7 @@ const EMPTY: NewBoilerInput = {
   manufacturer: "",
   installDate: new Date().toISOString().slice(0, 10),
   location: "",
-  inspectionIntervalDays: 365,
+  inspectionIntervalYears: 1,
 };
 
 const TYPES = [
@@ -142,13 +142,14 @@ export function AddBoilerModal({ onClose }: { onClose: () => void }) {
               className={inputCls}
             />
           </Field>
-          <Field label="Inspection interval (days)">
+          <Field label="Inspection interval (years)">
             <input
               type="number"
-              min={1}
-              value={form.inspectionIntervalDays}
+              min={0.1}
+              step={0.1}
+              value={form.inspectionIntervalYears}
               onChange={(e) =>
-                set("inspectionIntervalDays", Number(e.target.value) || 365)
+                set("inspectionIntervalYears", Number(e.target.value) || 1)
               }
               className={inputCls}
             />

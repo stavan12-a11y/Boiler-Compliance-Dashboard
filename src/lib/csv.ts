@@ -62,7 +62,7 @@ export function boilerToCsv(boiler: Boiler): string {
   lines.push(row(["Specs", "Install Date", boiler.installDate]));
   lines.push(row(["Specs", "Location", boiler.location]));
   lines.push(
-    row(["Specs", "Inspection Interval (days)", boiler.inspectionIntervalDays])
+    row(["Specs", "Inspection Interval (years)", boiler.inspectionIntervalYears])
   );
   lines.push(row(["Specs", "Current Status", STATUS_META[status].label]));
   lines.push(
@@ -96,7 +96,7 @@ export function fleetToCsv(boilers: Boiler[]): string {
     "Manufacturer",
     "Install Date",
     "Location",
-    "Inspection Interval (days)",
+    "Inspection Interval (years)",
     "Status",
     "Last Inspected",
     "Active Inspection Date",
@@ -122,7 +122,7 @@ export function fleetToCsv(boilers: Boiler[]): string {
         b.manufacturer,
         b.installDate,
         b.location,
-        b.inspectionIntervalDays,
+        b.inspectionIntervalYears,
         STATUS_META[status].label,
         getLastInspectedDate(b) ?? "Never",
         active?.date ?? "",

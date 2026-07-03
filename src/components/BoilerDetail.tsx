@@ -192,15 +192,15 @@ export function BoilerDetail({
                   <EditableField
                     label="Inspection interval"
                     type="number"
-                    suffix="days"
-                    value={String(boiler.inspectionIntervalDays)}
+                    suffix="years"
+                    value={String(boiler.inspectionIntervalYears)}
                     onCommit={(v) => {
                       const n = Number(v);
                       if (Number.isFinite(n) && n > 0) {
                         updateBoilerField(
                           boiler.id,
-                          "inspectionIntervalDays",
-                          Math.round(n)
+                          "inspectionIntervalYears",
+                          n
                         );
                       }
                     }}

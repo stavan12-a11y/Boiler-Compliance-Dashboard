@@ -4,13 +4,30 @@ import { createDemoBoilers } from "./demo";
 const STORAGE_KEY = "boiler-inspection-management:v2";
 const ACTIVITY_KEY = "boiler-inspection-management:activity:v1";
 
+type LegacyBoiler = Omit<Boiler, "inspectionIntervalYears"> & {
+  inspectionIntervalDays?: number;
+  inspectionIntervalYears?: number;
+};
+
+function migrateBoiler(raw: LegacyBoiler): Boiler {
+  if (typeof raw.inspectionIntervalYears === "number") {
+    return raw as Boiler;
+  }
+  const days = raw.inspectionIntervalDays ?? 365;
+  const { inspectionIntervalDays: _legacy, ...rest } = raw;
+  return {
+    ...rest,
+    inspectionIntervalYears: days / 365,
+  } as Boiler;
+}
+
 export function loadBoilers(): Boiler[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createDemoBoilers();
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return createDemoBoilers();
-    return parsed as Boiler[];
+    return parsed.map((b) => migrateBoiler(b as LegacyBoiler));
   } catch {
     return createDemoBoilers();
   }

@@ -1,6 +1,6 @@
 import type { Boiler, BoilerStatus, Inspection } from "../types";
 import {
-  addDays,
+  addYears,
   daysBetween,
   parseDate,
   WARNING_WINDOW_DAYS,
@@ -51,7 +51,10 @@ export interface ScheduleInfo {
 
 export function getScheduleInfo(boiler: Boiler, now = new Date()): ScheduleInfo {
   const basis = getLastInspectedDate(boiler) ?? boiler.installDate;
-  const nextDueDate = addDays(parseDate(basis), boiler.inspectionIntervalDays);
+  const nextDueDate = addYears(
+    parseDate(basis),
+    boiler.inspectionIntervalYears
+  );
   const daysUntilDue = daysBetween(now, nextDueDate);
   const isOverdue = daysUntilDue < 0;
   const isDueSoon = !isOverdue && daysUntilDue <= WARNING_WINDOW_DAYS;

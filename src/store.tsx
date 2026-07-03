@@ -48,7 +48,7 @@ const BOILER_FIELD_LABELS: Partial<Record<keyof Boiler, string>> = {
   manufacturer: "Manufacturer",
   installDate: "Install date",
   location: "Location",
-  inspectionIntervalDays: "Inspection interval (days)",
+  inspectionIntervalYears: "Inspection interval (years)",
 };
 
 function trunc(value: string, max = 80): string {
@@ -67,7 +67,7 @@ export interface NewBoilerInput {
   manufacturer: string;
   installDate: string;
   location: string;
-  inspectionIntervalDays: number;
+  inspectionIntervalYears: number;
 }
 
 export interface StartInspectionInput {
@@ -349,7 +349,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
         manufacturer: input.manufacturer,
         installDate: input.installDate,
         location: input.location,
-        inspectionIntervalDays: input.inspectionIntervalDays,
+        inspectionIntervalYears: input.inspectionIntervalYears,
         activeInspection: null,
         history: [],
       };

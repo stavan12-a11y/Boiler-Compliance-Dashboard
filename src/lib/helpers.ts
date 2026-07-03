@@ -48,6 +48,16 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+export function addYears(date: Date, years: number): Date {
+  const next = new Date(date);
+  next.setFullYear(next.getFullYear() + Math.trunc(years));
+  const fractionalMonths = Math.round((years % 1) * 12);
+  if (fractionalMonths !== 0) {
+    next.setMonth(next.getMonth() + fractionalMonths);
+  }
+  return next;
+}
+
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
   const d = parseDate(value);
