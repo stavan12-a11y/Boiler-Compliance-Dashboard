@@ -76,7 +76,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-maroon-800 bg-maroon-900 text-white shadow-md">
+      <header className="sticky top-0 z-30 border-b border-maroon-700 bg-maroon-800 text-white shadow-md">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
@@ -153,7 +153,7 @@ function Dashboard() {
                     onClick={() => setFilter(f.key)}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                       filter === f.key
-                        ? "bg-maroon-900 text-white"
+                        ? "bg-maroon-700 text-white"
                         : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
                     }`}
                   >

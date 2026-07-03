@@ -135,34 +135,65 @@ export function getFleetStats(boilers: Boiler[]): FleetStats {
 
 export const STATUS_META: Record<
   BoilerStatus,
-  { label: string; dot: string; ring: string; text: string; badgeBg: string }
+  {
+    label: string;
+    dot: string;
+    ring: string;
+    text: string;
+    badgeBg: string;
+    cardBanner: string;
+    cardRing: string;
+    cardBadge: string;
+  }
 > = {
   failed: {
     label: "Needs repairs",
-    dot: "bg-rose-500",
-    ring: "ring-rose-200",
+    dot: "bg-rose-400",
+    ring: "ring-rose-100",
     text: "text-rose-700",
     badgeBg: "bg-rose-50",
+    cardBanner: "border-b border-rose-100 bg-rose-50 text-rose-700",
+    cardRing: "ring-2 ring-rose-200/60",
+    cardBadge: "bg-rose-100 text-rose-700",
   },
   active: {
     label: "Inspection underway",
-    dot: "bg-amber-500",
-    ring: "ring-amber-200",
+    dot: "bg-amber-400",
+    ring: "ring-amber-100",
     text: "text-amber-700",
     badgeBg: "bg-amber-50",
+    cardBanner: "border-b border-amber-100 bg-amber-50 text-amber-700",
+    cardRing: "ring-2 ring-amber-200/60",
+    cardBadge: "bg-amber-100 text-amber-700",
   },
   passed: {
     label: "Passed & complete",
-    dot: "bg-emerald-500",
-    ring: "ring-emerald-200",
+    dot: "bg-emerald-400",
+    ring: "ring-emerald-100",
     text: "text-emerald-700",
     badgeBg: "bg-emerald-50",
+    cardBanner: "border-b border-emerald-100 bg-emerald-50 text-emerald-700",
+    cardRing: "ring-2 ring-emerald-200/60",
+    cardBadge: "bg-emerald-100 text-emerald-700",
   },
   none: {
     label: "No inspection yet",
-    dot: "bg-slate-400",
-    ring: "ring-slate-200",
+    dot: "bg-slate-300",
+    ring: "ring-slate-100",
     text: "text-slate-600",
-    badgeBg: "bg-slate-100",
+    badgeBg: "bg-slate-50",
+    cardBanner: "border-b border-slate-100 bg-slate-50 text-slate-700",
+    cardRing: "",
+    cardBadge: "bg-slate-100 text-slate-600",
   },
+};
+
+export const OVERDUE_CARD = {
+  label: "Overdue inspection",
+  cardBanner: "border-b border-orange-100 bg-orange-50 text-orange-700",
+  cardRing: "ring-2 ring-orange-200/60",
+  cardBadge: "bg-orange-100 text-orange-700",
+  footer: "border-orange-50 bg-orange-50/50",
+  footerText: "text-orange-700",
+  footerIcon: "text-orange-400",
 };

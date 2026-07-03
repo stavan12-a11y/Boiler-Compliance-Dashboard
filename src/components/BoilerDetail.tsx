@@ -69,7 +69,7 @@ export function BoilerDetail({
       {/* Full-width header */}
       <header className="sticky top-0 z-10 shadow-md">
         {/* Maroon top bar */}
-        <div className="bg-maroon-900 text-white">
+        <div className="bg-maroon-800 text-white">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <button
@@ -138,7 +138,7 @@ export function BoilerDetail({
                   onClick={() => setTab(t)}
                   className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition ${
                     tab === t
-                      ? "bg-maroon-100 text-maroon-800"
+                      ? "bg-maroon-50 text-maroon-700"
                       : "text-slate-500 hover:bg-slate-100"
                   }`}
                 >

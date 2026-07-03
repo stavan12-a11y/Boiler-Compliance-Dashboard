@@ -1,5 +1,10 @@
 import type { Boiler } from "../types";
-import { getBoilerStatus, getScheduleInfo, STATUS_META } from "../lib/derive";
+import {
+  getBoilerStatus,
+  getScheduleInfo,
+  OVERDUE_CARD,
+  STATUS_META,
+} from "../lib/derive";
 import { Warning } from "./ui";
 import {
   AlertIcon,
@@ -9,32 +14,6 @@ import {
   LayersIcon,
   MapPinIcon,
 } from "./icons";
-
-const BANNER: Record<ReturnType<typeof getBoilerStatus>, string> = {
-  failed: "bg-red-600",
-  active: "bg-amber-500",
-  passed: "bg-emerald-600",
-  none: "bg-slate-500",
-};
-
-function cardBannerClass(
-  status: ReturnType<typeof getBoilerStatus>,
-  isOverdue: boolean
-): string {
-  if (status === "failed") return BANNER.failed;
-  if (isOverdue) return "bg-orange-600";
-  return BANNER[status];
-}
-
-function cardRingClass(
-  status: ReturnType<typeof getBoilerStatus>,
-  isOverdue: boolean
-): string {
-  if (status === "failed") return "ring-2 ring-red-500/40";
-  if (isOverdue) return "ring-2 ring-orange-500/50";
-  if (status === "passed") return "ring-2 ring-emerald-500/50";
-  return "";
-}
 
 export function BoilerCard({
   boiler,
@@ -49,27 +28,30 @@ export function BoilerCard({
   const meta = STATUS_META[status];
   const schedule = getScheduleInfo(boiler);
   const isOverdue = schedule.isOverdue;
-  const bannerLabel =
-    isOverdue && status !== "failed"
-      ? "Overdue inspection"
-      : meta.label;
+  const showOverdueStyle = isOverdue && status !== "failed";
+  const cardStyle = showOverdueStyle ? OVERDUE_CARD : meta;
+  const bannerLabel = showOverdueStyle ? OVERDUE_CARD.label : meta.label;
 
   return (
     <div
-      className={`card group flex flex-col overflow-hidden transition-all hover:shadow-card-hover ${cardRingClass(status, isOverdue)}`}
+      className={`card group flex flex-col overflow-hidden transition-all hover:shadow-card-hover ${cardStyle.cardRing}`}
     >
       <div
-        className={`flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wide text-white ${cardBannerClass(status, isOverdue)}`}
+        className={`flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wide ${cardStyle.cardBanner}`}
       >
         <span>{bannerLabel}</span>
         {status === "active" && !isOverdue && (
-          <span className="rounded bg-white/20 px-1.5 py-0.5">In progress</span>
+          <span className={`rounded px-1.5 py-0.5 ${meta.cardBadge}`}>
+            In progress
+          </span>
         )}
         {status === "passed" && !isOverdue && (
-          <span className="rounded bg-white/20 px-1.5 py-0.5">Certified</span>
+          <span className={`rounded px-1.5 py-0.5 ${meta.cardBadge}`}>
+            Certified
+          </span>
         )}
-        {isOverdue && status !== "failed" && (
-          <span className="rounded bg-white/20 px-1.5 py-0.5">
+        {showOverdueStyle && (
+          <span className={`rounded px-1.5 py-0.5 ${OVERDUE_CARD.cardBadge}`}>
             {schedule.daysOverdue}d overdue
           </span>
         )}
@@ -93,7 +75,7 @@ export function BoilerCard({
               {boiler.texasBoilerNumber || "—"}
             </p>
           </div>
-          <ArrowRightIcon className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-maroon-700" />
+          <ArrowRightIcon className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-maroon-600" />
         </div>
 
         <div className="mt-3 space-y-1.5 text-sm text-slate-600">
@@ -111,22 +93,22 @@ export function BoilerCard({
 
       <div
         className={`border-t px-4 py-2.5 ${
-          isOverdue ? "border-orange-100 bg-orange-50/40" : "border-slate-100"
+          showOverdueStyle ? OVERDUE_CARD.footer : "border-slate-100"
         }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span
             className={`flex items-center gap-1.5 text-xs ${
-              isOverdue ? "font-medium text-orange-800" : "text-slate-600"
+              showOverdueStyle ? OVERDUE_CARD.footerText : "text-slate-600"
             }`}
           >
             <ClockIcon
               className={`h-3.5 w-3.5 ${
-                isOverdue ? "text-orange-500" : "text-slate-400"
+                showOverdueStyle ? OVERDUE_CARD.footerIcon : "text-slate-400"
               }`}
             />
             Next due:{" "}
-            <span className={isOverdue ? "font-bold" : "font-semibold text-slate-800"}>
+            <span className={showOverdueStyle ? "font-semibold" : "font-semibold text-slate-800"}>
               {schedule.nextDueLabel}
             </span>
           </span>
