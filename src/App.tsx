@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { FleetProvider, useFleet } from "./store";
-import { boilerToCsv, downloadCsv, slugify } from "./lib/csv";
 import { getBoilerStatus } from "./lib/derive";
 import type { BoilerStatus } from "./types";
 import { SummaryCards } from "./components/SummaryCards";
@@ -170,12 +169,6 @@ function Dashboard() {
                     key={boiler.id}
                     boiler={boiler}
                     onOpen={() => setSelectedId(boiler.id)}
-                    onExport={() =>
-                      downloadCsv(
-                        `${slugify(boiler.name)}-report.csv`,
-                        boilerToCsv(boiler)
-                      )
-                    }
                   />
                 ))}
               </div>

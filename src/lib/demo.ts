@@ -54,6 +54,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "Riverside Plant — Hall A",
       texasBoilerNumber: "TX-4821",
       nationalBoardNumber: "NB-12458",
+      boilerUse: "Plant steam generation",
       inspectionIntervalYears: 1,
       activeInspection: null,
       history: [
@@ -102,6 +103,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "North Dock — Boiler House 2",
       texasBoilerNumber: "TX-5102",
       nationalBoardNumber: "NB-18903",
+      boilerUse: "Dock heating & hot water",
       inspectionIntervalYears: 1,
       activeInspection: {
         id: "insp_northdock_active",
@@ -132,6 +134,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "West Annex — Mechanical Room",
       texasBoilerNumber: "TX-6347",
       nationalBoardNumber: "NB-22104",
+      boilerUse: "Annex space heating",
       inspectionIntervalYears: 0.5,
       activeInspection: {
         id: "insp_westannex_failed",
@@ -183,6 +186,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "South Yard — Skid 7",
       texasBoilerNumber: "TX-2901",
       nationalBoardNumber: "NB-9876",
+      boilerUse: "Yard process steam",
       inspectionIntervalYears: 1,
       activeInspection: null,
       history: [],
@@ -200,6 +204,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "R&D Building — Sub-basement",
       texasBoilerNumber: "TX-7712",
       nationalBoardNumber: "NB-30211",
+      boilerUse: "R&D lab heating",
       inspectionIntervalYears: 1,
       activeInspection: null,
       history: [],
@@ -217,6 +222,7 @@ export function createDemoBoilers(): Boiler[] {
       location: "Central Energy Centre — Hall 1",
       texasBoilerNumber: "TX-1184",
       nationalBoardNumber: "NB-5620",
+      boilerUse: "Central steam distribution",
       inspectionIntervalYears: 1,
       activeInspection: null,
       history: [

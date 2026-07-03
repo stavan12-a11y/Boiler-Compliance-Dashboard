@@ -8,7 +8,7 @@ const KPI_HISTORY_KEY = "boiler-inspection-management:kpi-history:v1";
 
 type LegacyBoiler = Omit<
   Boiler,
-  "inspectionIntervalYears" | "stampedMawp" | "texasBoilerNumber" | "nationalBoardNumber"
+  "inspectionIntervalYears" | "stampedMawp" | "texasBoilerNumber" | "nationalBoardNumber" | "boilerUse"
 > & {
   inspectionIntervalDays?: number;
   inspectionIntervalYears?: number;
@@ -16,6 +16,7 @@ type LegacyBoiler = Omit<
   stampedMawp?: string;
   texasBoilerNumber?: string;
   nationalBoardNumber?: string;
+  boilerUse?: string;
 };
 
 export function migrateBoiler(raw: LegacyBoiler): Boiler {
@@ -26,6 +27,7 @@ export function migrateBoiler(raw: LegacyBoiler): Boiler {
     stampedMawp,
     texasBoilerNumber,
     nationalBoardNumber,
+    boilerUse,
     ...rest
   } = raw;
 
@@ -39,6 +41,7 @@ export function migrateBoiler(raw: LegacyBoiler): Boiler {
     stampedMawp: stampedMawp ?? pressureRating ?? "",
     texasBoilerNumber: texasBoilerNumber ?? "",
     nationalBoardNumber: nationalBoardNumber ?? "",
+    boilerUse: boilerUse ?? "",
     inspectionIntervalYears,
   } as Boiler;
 }

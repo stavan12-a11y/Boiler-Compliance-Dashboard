@@ -56,6 +56,8 @@ export interface Boiler {
   texasBoilerNumber: string;
   /** National Board registration number. */
   nationalBoardNumber: string;
+  /** What the boiler is used for (e.g. steam generation, process heat). */
+  boilerUse: string;
   /** How often (in years) this boiler must be inspected. */
   inspectionIntervalYears: number;
   activeInspection: Inspection | null;

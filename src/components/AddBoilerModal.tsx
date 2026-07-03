@@ -12,6 +12,7 @@ const EMPTY: NewBoilerInput = {
   location: "",
   texasBoilerNumber: "",
   nationalBoardNumber: "",
+  boilerUse: "",
   inspectionIntervalYears: 1,
 };
 
@@ -172,6 +173,16 @@ export function AddBoilerModal({ onClose }: { onClose: () => void }) {
               className={inputCls}
             />
           </Field>
+          <div className="sm:col-span-2">
+            <Field label="Boiler use">
+              <input
+                value={form.boilerUse}
+                onChange={(e) => set("boilerUse", e.target.value)}
+                placeholder="e.g. Steam generation, process heat"
+                className={inputCls}
+              />
+            </Field>
+          </div>
           <div className="sm:col-span-2">
             <Field label="Location">
               <input
