@@ -9,7 +9,7 @@ type LegacyBoiler = Omit<Boiler, "inspectionIntervalYears"> & {
   inspectionIntervalYears?: number;
 };
 
-function migrateBoiler(raw: LegacyBoiler): Boiler {
+export function migrateBoiler(raw: LegacyBoiler): Boiler {
   if (typeof raw.inspectionIntervalYears === "number") {
     return raw as Boiler;
   }
@@ -21,13 +21,17 @@ function migrateBoiler(raw: LegacyBoiler): Boiler {
   } as Boiler;
 }
 
+export function migrateBoilers(raw: unknown[]): Boiler[] {
+  return raw.map((b) => migrateBoiler(b as LegacyBoiler));
+}
+
 export function loadBoilers(): Boiler[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createDemoBoilers();
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return createDemoBoilers();
-    return parsed.map((b) => migrateBoiler(b as LegacyBoiler));
+    return migrateBoilers(parsed);
   } catch {
     return createDemoBoilers();
   }

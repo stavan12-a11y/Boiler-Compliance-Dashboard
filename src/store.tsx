@@ -20,6 +20,7 @@ import { createDemoBoilers } from "./lib/demo";
 import {
   loadActivity,
   loadBoilers,
+  migrateBoilers,
   saveActivity,
   saveBoilers,
 } from "./lib/storage";
@@ -233,7 +234,9 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       if (!error && row?.data) {
         const state = row.data as Partial<AppState>;
         applyingRemote.current = true;
-        setBoilers(Array.isArray(state.boilers) ? state.boilers : []);
+        setBoilers(
+          Array.isArray(state.boilers) ? migrateBoilers(state.boilers) : []
+        );
         setActivity(Array.isArray(state.activity) ? state.activity : []);
       } else if (!error) {
         // First run: seed the shared table with the demo fleet.
@@ -264,7 +267,11 @@ export function FleetProvider({ children }: { children: ReactNode }) {
             ?.data;
           if (incoming) {
             applyingRemote.current = true;
-            setBoilers(Array.isArray(incoming.boilers) ? incoming.boilers : []);
+            setBoilers(
+              Array.isArray(incoming.boilers)
+                ? migrateBoilers(incoming.boilers)
+                : []
+            );
             setActivity(
               Array.isArray(incoming.activity) ? incoming.activity : []
             );
