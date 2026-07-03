@@ -59,8 +59,9 @@ export function BoilerCard({
             <h4 className="truncate text-lg font-bold text-slate-900">
               {boiler.name}
             </h4>
-            <p className="mt-0.5 truncate text-xs font-medium text-slate-500">
-              {boiler.texasBoilerNumber || "Texas boiler # not set"}
+            <p className="mt-0.5 truncate text-xs text-slate-500">
+              <span className="font-medium text-slate-600">Texas Boiler #:</span>{" "}
+              {boiler.texasBoilerNumber || "—"}
             </p>
           </div>
           <ArrowRightIcon className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-maroon-700" />
