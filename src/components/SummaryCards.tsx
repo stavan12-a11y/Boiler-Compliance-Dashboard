@@ -80,7 +80,7 @@ export function SummaryCards({
       <Card
         label="Compliance rate"
         value={`${rate}%`}
-        hint={`${countCompliant(boilers)} of ${stats.total} compliant`}
+        hint={`${countCompliant(boilers)} passed & complete`}
         icon={<CheckIcon className="h-5 w-5 text-emerald-600" />}
         accent="bg-emerald-50"
         active={activeKpi === "compliant"}

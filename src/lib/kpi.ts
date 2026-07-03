@@ -9,7 +9,7 @@ import { uid } from "./helpers";
 
 export const KPI_FILTER_LABELS: Record<KpiFilterKey, string> = {
   all: "All boilers",
-  compliant: "Compliant",
+  compliant: "Passed & complete",
   overdue: "Overdue inspections",
   dueSoon: "Due within 30 days",
   failed: "Failed / needs repair",
@@ -27,8 +27,7 @@ export const KPI_TREND_LABELS: Record<KpiTrendMetric, string> = {
 };
 
 export function isBoilerCompliant(boiler: Boiler): boolean {
-  if (getBoilerStatus(boiler) === "failed") return false;
-  return !getScheduleInfo(boiler).isOverdue;
+  return getBoilerStatus(boiler) === "passed";
 }
 
 export function boilerHasCompletedInspection(boiler: Boiler): boolean {
@@ -148,7 +147,11 @@ export function createDemoKpiHistory(boilers: Boiler[]): KpiSnapshot[] {
       0,
       Math.min(current.total - overdue, current.dueSoon + (weeksAgo % 2))
     );
-    const compliant = Math.max(0, current.total - overdue - failed);
+    const passed = boilers.filter((b) => getBoilerStatus(b) === "passed").length;
+    const compliant = Math.max(
+      0,
+      Math.min(current.total, passed - Math.round(weeksAgo * 0.15))
+    );
     const rate =
       current.total > 0
         ? Math.round((compliant / current.total) * 1000) / 10

@@ -1,26 +1,25 @@
-import { useEffect, useState } from "react";
-import type { Boiler, KpiFilterKey, KpiSnapshot, KpiTrendMetric } from "../types";
+import { useEffect } from "react";
+import type { Boiler, KpiFilterKey, KpiSnapshot } from "../types";
 import {
   downloadCsv,
   fleetToCsv,
   kpiBoilersToCsv,
-  kpiTrendBundleCsv,
   kpiTrendToCsv,
   slugify,
 } from "../lib/csv";
-import { filterBoilersByKpi, KPI_FILTER_LABELS, KPI_TREND_LABELS } from "../lib/kpi";
+import { filterBoilersByKpi, KPI_FILTER_LABELS } from "../lib/kpi";
 import { CloseIcon, DownloadIcon } from "./icons";
 
 const CURRENT_DOWNLOADS: {
-  key: KpiFilterKey | "fleet";
+  key: KpiFilterKey | "fleet" | "complianceTrend";
   label: string;
   filename: string;
 }[] = [
   { key: "fleet", label: "Full fleet register", filename: "fleet-register.csv" },
   {
     key: "compliant",
-    label: "Compliant boilers",
-    filename: "compliant-boilers.csv",
+    label: "Passed & complete boilers",
+    filename: "passed-complete-boilers.csv",
   },
   {
     key: "overdue",
@@ -38,17 +37,10 @@ const CURRENT_DOWNLOADS: {
     filename: "failed-boilers.csv",
   },
   {
-    key: "withDowntime",
-    label: "Boilers with downtime history",
-    filename: "downtime-boilers.csv",
+    key: "complianceTrend",
+    label: "Compliance rate trend",
+    filename: "compliance-rate-trend.csv",
   },
-];
-
-const DEFAULT_TREND_METRICS: KpiTrendMetric[] = [
-  "complianceRate",
-  "overdue",
-  "failed",
-  "avgDowntime",
 ];
 
 function Field({
@@ -77,9 +69,6 @@ export function DownloadDataModal({
   kpiHistory: KpiSnapshot[];
   onClose: () => void;
 }) {
-  const [trendMetrics, setTrendMetrics] =
-    useState<KpiTrendMetric[]>(DEFAULT_TREND_METRICS);
-
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -92,17 +81,16 @@ export function DownloadDataModal({
     };
   }, [onClose]);
 
-  function toggleMetric(metric: KpiTrendMetric) {
-    setTrendMetrics((prev) =>
-      prev.includes(metric)
-        ? prev.filter((m) => m !== metric)
-        : [...prev, metric]
-    );
-  }
-
-  function downloadCurrent(key: KpiFilterKey | "fleet") {
+  function downloadItem(key: KpiFilterKey | "fleet" | "complianceTrend") {
     if (key === "fleet") {
       downloadCsv("fleet-register.csv", fleetToCsv(boilers));
+      return;
+    }
+    if (key === "complianceTrend") {
+      downloadCsv(
+        "compliance-rate-trend.csv",
+        kpiTrendToCsv(kpiHistory, ["complianceRate"])
+      );
       return;
     }
     const subset = filterBoilersByKpi(boilers, key);
@@ -110,22 +98,6 @@ export function DownloadDataModal({
     downloadCsv(
       item?.filename ?? `${slugify(KPI_FILTER_LABELS[key])}.csv`,
       kpiBoilersToCsv(subset, key)
-    );
-  }
-
-  function downloadWideTrend() {
-    if (trendMetrics.length === 0) return;
-    downloadCsv(
-      "kpi-trend-comparison.csv",
-      kpiTrendToCsv(kpiHistory, trendMetrics)
-    );
-  }
-
-  function downloadStackedTrend() {
-    if (trendMetrics.length === 0) return;
-    downloadCsv(
-      "kpi-trend-by-metric.csv",
-      kpiTrendBundleCsv(kpiHistory, trendMetrics)
     );
   }
 
@@ -142,7 +114,7 @@ export function DownloadDataModal({
           <div>
             <h2 className="text-lg font-bold text-slate-900">Download data</h2>
             <p className="text-sm text-slate-500">
-              Export current KPI boiler lists or compare KPI trends over time.
+              Export current boiler lists and compliance rate history.
             </p>
           </div>
           <button
@@ -154,13 +126,13 @@ export function DownloadDataModal({
           </button>
         </div>
 
-        <Field label="Current snapshot">
+        <Field label="Downloads">
           <div className="grid gap-2 sm:grid-cols-2">
             {CURRENT_DOWNLOADS.map((item) => (
               <button
                 key={item.key}
                 type="button"
-                onClick={() => downloadCurrent(item.key)}
+                onClick={() => downloadItem(item.key)}
                 className="inline-flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:border-maroon-200 hover:bg-maroon-50"
               >
                 <span>{item.label}</span>
@@ -168,60 +140,6 @@ export function DownloadDataModal({
               </button>
             ))}
           </div>
-        </Field>
-
-        <div className="my-5 border-t border-slate-100" />
-
-        <Field label="KPI trend comparison">
-          <p className="mb-3 text-xs text-slate-500">
-            {kpiHistory.length} snapshots recorded. Select metrics to include in
-            your trend export.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(KPI_TREND_LABELS) as KpiTrendMetric[]).map(
-              (metric) => {
-                const selected = trendMetrics.includes(metric);
-                return (
-                  <button
-                    key={metric}
-                    type="button"
-                    onClick={() => toggleMetric(metric)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      selected
-                        ? "bg-maroon-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {KPI_TREND_LABELS[metric]}
-                  </button>
-                );
-              }
-            )}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={trendMetrics.length === 0}
-              onClick={downloadWideTrend}
-              className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <DownloadIcon className="h-4 w-4" />
-              Download comparison table
-            </button>
-            <button
-              type="button"
-              disabled={trendMetrics.length === 0}
-              onClick={downloadStackedTrend}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <DownloadIcon className="h-4 w-4" />
-              Download by metric
-            </button>
-          </div>
-          <p className="mt-2 text-[11px] text-slate-400">
-            Comparison table puts all selected KPIs in one sheet by date. By
-            metric stacks each KPI separately for side-by-side charting.
-          </p>
         </Field>
       </div>
     </div>
