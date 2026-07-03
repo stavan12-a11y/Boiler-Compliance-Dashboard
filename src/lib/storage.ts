@@ -1,5 +1,5 @@
 import type { ActivityEntry, Boiler, KpiSnapshot } from "../types";
-import { createDemoKpiHistory } from "./kpi";
+import { recordDailyKpiSnapshot } from "./kpi";
 import { createDemoBoilers } from "./demo";
 
 const STORAGE_KEY = "boiler-inspection-management:v2";
@@ -97,14 +97,16 @@ export function saveActivity(entries: ActivityEntry[]): void {
 export function loadKpiHistory(boilers: Boiler[]): KpiSnapshot[] {
   try {
     const raw = localStorage.getItem(KPI_HISTORY_KEY);
-    if (!raw) return createDemoKpiHistory(boilers);
+    if (!raw) {
+      return recordDailyKpiSnapshot([], boilers, new Date().toISOString());
+    }
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      return createDemoKpiHistory(boilers);
+      return recordDailyKpiSnapshot([], boilers, new Date().toISOString());
     }
     return parsed as KpiSnapshot[];
   } catch {
-    return createDemoKpiHistory(boilers);
+    return recordDailyKpiSnapshot([], boilers, new Date().toISOString());
   }
 }
 

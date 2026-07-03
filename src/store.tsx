@@ -27,7 +27,7 @@ import {
   saveBoilers,
   saveKpiHistory,
 } from "./lib/storage";
-import { appendKpiSnapshot, createDemoKpiHistory, normalizeKpiHistory } from "./lib/kpi";
+import { createDemoKpiHistory, normalizeKpiHistory, recordDailyKpiSnapshot } from "./lib/kpi";
 import {
   isSupabaseConfigured,
   STATE_ROW_ID,
@@ -238,12 +238,22 @@ export function FleetProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (kpiTimer.current) clearTimeout(kpiTimer.current);
     kpiTimer.current = setTimeout(() => {
-      setKpiHistory((prev) => appendKpiSnapshot(prev, boilersRef.current, nowIso()));
+      setKpiHistory((prev) =>
+        recordDailyKpiSnapshot(prev, boilersRef.current, nowIso())
+      );
     }, 1500);
     return () => {
       if (kpiTimer.current) clearTimeout(kpiTimer.current);
     };
   }, [boilers]);
+
+  // Ensure today's compliance snapshot exists when the app loads.
+  useEffect(() => {
+    if (cloud && !synced) return;
+    setKpiHistory((prev) =>
+      recordDailyKpiSnapshot(prev, boilersRef.current, nowIso())
+    );
+  }, [cloud, synced]);
 
   // --- Cloud mode: load shared state + subscribe to live changes -----------
   useEffect(() => {

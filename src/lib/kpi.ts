@@ -95,101 +95,81 @@ export function buildKpiSnapshot(boilers: Boiler[], at: string): KpiSnapshot {
   };
 }
 
-function snapshotMetricsDiffer(a: KpiSnapshot, b: KpiSnapshot): boolean {
-  return (
-    a.total !== b.total ||
-    a.compliant !== b.compliant ||
-    a.complianceRate !== b.complianceRate ||
-    a.overdue !== b.overdue ||
-    a.dueSoon !== b.dueSoon ||
-    a.failed !== b.failed ||
-    a.avgDowntimeDays !== b.avgDowntimeDays
+function dayKey(at: string): string {
+  return at.slice(0, 10);
+}
+
+/** Keep the latest snapshot for each calendar day, newest first. */
+export function dedupeKpiHistoryByDay(history: KpiSnapshot[]): KpiSnapshot[] {
+  const byDay = new Map<string, KpiSnapshot>();
+  for (const snap of history) {
+    const day = dayKey(snap.at);
+    const existing = byDay.get(day);
+    if (!existing || new Date(snap.at).getTime() > new Date(existing.at).getTime()) {
+      byDay.set(day, snap);
+    }
+  }
+  return Array.from(byDay.values()).sort(
+    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
   );
 }
 
-/** Append a snapshot when fleet KPIs change, or at most once per hour. */
-export function appendKpiSnapshot(
+/** Record or refresh today's compliance snapshot — at most one entry per day. */
+export function recordDailyKpiSnapshot(
   history: KpiSnapshot[],
   boilers: Boiler[],
   at: string
 ): KpiSnapshot[] {
+  const today = dayKey(at);
   const next = buildKpiSnapshot(boilers, at);
-  const last = history[0];
-  if (last) {
-    const hourMs = 60 * 60 * 1000;
-    const elapsed = Date.now() - new Date(last.at).getTime();
-    if (!snapshotMetricsDiffer(last, next) && elapsed < hourMs) {
-      return history;
-    }
-  }
-  return [next, ...history].slice(0, 365);
+  const withoutToday = history.filter((s) => dayKey(s.at) !== today);
+  return [next, ...withoutToday].slice(0, 366);
 }
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 
-/** Seed weekly trend points for demo / first-run dashboards. */
+/** Seed daily trend points for demo reset only. */
 export function createDemoKpiHistory(boilers: Boiler[]): KpiSnapshot[] {
-  const current = buildKpiSnapshot(boilers, new Date().toISOString());
   const snapshots: KpiSnapshot[] = [];
-
-  for (let weeksAgo = 11; weeksAgo >= 0; weeksAgo -= 1) {
-    const at = new Date(Date.now() - weeksAgo * 7 * DAY_MS).toISOString();
-    const drift = weeksAgo * 0.4;
+  for (let daysAgo = 89; daysAgo >= 0; daysAgo -= 1) {
+    const at = new Date(Date.now() - daysAgo * DAY_MS).toISOString();
+    const drift = daysAgo * 0.02;
+    const current = buildKpiSnapshot(boilers, at);
     const overdue = Math.max(
       0,
-      Math.min(current.total, Math.round(current.overdue + drift - 1))
+      Math.min(current.total, Math.round(current.overdue + drift))
     );
     const failed = Math.max(
       0,
-      Math.min(current.total, Math.round(current.failed + (weeksAgo % 3) - 1))
+      Math.min(current.total, Math.round(current.failed + (daysAgo % 5) * 0.1))
     );
-    const dueSoon = Math.max(
-      0,
-      Math.min(current.total - overdue, current.dueSoon + (weeksAgo % 2))
-    );
-    const passed = boilers.filter((b) => getBoilerStatus(b) === "passed").length;
-    const compliant = Math.max(
-      0,
-      Math.min(current.total, passed - Math.round(weeksAgo * 0.15))
-    );
-    const rate =
-      current.total > 0
-        ? Math.round((compliant / current.total) * 1000) / 10
-        : 0;
-    const avg =
-      current.avgDowntimeDays !== null
-        ? Math.max(
-            0.5,
-            Math.round((current.avgDowntimeDays + weeksAgo * 0.15) * 10) / 10
-          )
-        : null;
-
+    const compliant = Math.max(0, current.total - overdue - failed);
     snapshots.push({
+      ...current,
       id: uid("kpi"),
       at,
-      total: current.total,
-      compliant,
-      complianceRate: rate,
       overdue,
-      dueSoon,
       failed,
-      avgDowntimeDays: avg,
+      compliant,
+      complianceRate:
+        current.total > 0
+          ? Math.round((compliant / current.total) * 1000) / 10
+          : 0,
     });
   }
-
-  return snapshots.sort(
-    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
-  );
+  return dedupeKpiHistoryByDay(snapshots);
 }
 
 export function normalizeKpiHistory(
   raw: unknown,
   boilers: Boiler[]
 ): KpiSnapshot[] {
+  const at = new Date().toISOString();
   if (!Array.isArray(raw) || raw.length === 0) {
-    return createDemoKpiHistory(boilers);
+    return recordDailyKpiSnapshot([], boilers, at);
   }
-  return raw as KpiSnapshot[];
+  const deduped = dedupeKpiHistoryByDay(raw as KpiSnapshot[]);
+  return recordDailyKpiSnapshot(deduped, boilers, at);
 }
 
 export function snapshotMetricValue(

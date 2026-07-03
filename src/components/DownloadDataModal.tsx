@@ -114,7 +114,7 @@ export function DownloadDataModal({
           <div>
             <h2 className="text-lg font-bold text-slate-900">Download data</h2>
             <p className="text-sm text-slate-500">
-              Export current boiler lists and compliance rate history.
+              Export boiler lists and daily compliance rate history.
             </p>
           </div>
           <button
