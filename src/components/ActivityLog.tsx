@@ -167,7 +167,7 @@ export function ActivityLog({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-100">
       <header className="sticky top-0 z-10 shadow-md">
-        <div className="bg-maroon-850 text-white">
+        <div className="bg-maroon-900 text-white">
           <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <div className="flex items-center gap-3">
               <button

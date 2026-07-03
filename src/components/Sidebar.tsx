@@ -93,7 +93,7 @@ export function Sidebar({
                                 {boiler.location}
                               </span>
                             </span>
-                            <span className="flex shrink-0 items-center gap-1 rounded-md bg-rose-200/80 px-1.5 py-0.5 text-[11px] font-semibold text-rose-800">
+                            <span className="flex shrink-0 items-center gap-1 rounded-md bg-rose-200/70 px-1.5 py-0.5 text-[11px] font-semibold text-rose-700">
                               <AlertIcon className="h-3 w-3" />
                               {schedule.daysOverdue}d
                             </span>
@@ -125,7 +125,7 @@ export function Sidebar({
                                 {boiler.location}
                               </span>
                             </span>
-                            <span className="shrink-0 rounded-md bg-amber-200/80 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                            <span className="shrink-0 rounded-md bg-amber-200/70 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700">
                               {schedule.daysUntilDue}d
                             </span>
                           </button>
@@ -159,7 +159,7 @@ export function Sidebar({
                           {boiler.location}
                         </span>
                       </span>
-                      <span className="shrink-0 rounded-md bg-rose-200/80 px-1.5 py-0.5 text-[11px] font-semibold text-rose-800">
+                      <span className="shrink-0 rounded-md bg-rose-200/70 px-1.5 py-0.5 text-[11px] font-semibold text-rose-700">
                         {repairs} {repairs === 1 ? "repair" : "repairs"}
                       </span>
                     </button>

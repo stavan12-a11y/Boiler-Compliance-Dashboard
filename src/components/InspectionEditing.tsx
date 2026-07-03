@@ -35,7 +35,7 @@ export function InspectionMeta({
             onChange={(e) =>
               editInspection(boilerId, inspection.id, { date: e.target.value })
             }
-            className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-maroon-600 focus:ring-1 focus:ring-maroon-600"
+            className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
           />
         </label>
         <div>
@@ -50,7 +50,7 @@ export function InspectionMeta({
               }
               className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
                 inspection.result === "pass"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  ? "border-emerald-400 bg-emerald-50 text-emerald-700"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
@@ -63,7 +63,7 @@ export function InspectionMeta({
               }
               className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
                 inspection.result === "fail"
-                  ? "border-rose-300 bg-rose-50 text-rose-800"
+                  ? "border-rose-400 bg-rose-50 text-rose-700"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
@@ -114,7 +114,7 @@ function StepDateField({
           )
         }
         title="Edit the date and time this step was completed"
-        className="rounded-md border border-transparent bg-transparent px-1 py-0.5 text-[11px] text-slate-500 outline-none transition hover:border-slate-200 hover:bg-white focus:border-maroon-600 focus:bg-white focus:text-slate-700 focus:ring-1 focus:ring-maroon-600"
+        className="rounded-md border border-transparent bg-transparent px-1 py-0.5 text-[11px] text-slate-500 outline-none transition hover:border-slate-200 hover:bg-white focus:border-maroon-700 focus:bg-white focus:text-slate-700 focus:ring-1 focus:ring-maroon-700"
       />
     </span>
   );
@@ -194,10 +194,10 @@ export function EditableStepList({
               className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition ${
                 isFuture || isCurrent
                   ? isCurrent
-                    ? "cursor-default border-maroon-500 bg-maroon-50 text-maroon-800"
+                    ? "cursor-default border-maroon-700 bg-maroon-50 text-maroon-700"
                     : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
                   : isDone
-                  ? "border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600"
+                  ? "border-emerald-400 bg-emerald-400 text-white hover:bg-emerald-500"
                   : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
               }`}
             >
@@ -240,13 +240,13 @@ export function EditableStepList({
               )}
 
               {isCurrent && (
-                <div className="mt-2 rounded-lg border border-maroon-200 bg-maroon-50/60 p-3">
+                <div className="mt-2 rounded-lg border border-maroon-200 bg-maroon-50/50 p-3">
                   <textarea
                     value={stepNote}
                     rows={2}
                     onChange={(e) => setStepNote(e.target.value)}
                     placeholder={`Notes for ${step.label.toLowerCase()} (optional)…`}
-                    className="w-full resize-none rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-maroon-600 focus:ring-1 focus:ring-maroon-600"
+                    className="w-full resize-none rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
                   />
                   <button
                     {...advanceButtonProps(() => advanceStep(step.key))}
@@ -307,7 +307,7 @@ export function RepairList({
                       )
                     }
                     title="Edit the date and time this repair was logged"
-                    className="rounded-md border border-transparent bg-transparent px-1 py-0.5 text-[11px] text-slate-500 outline-none transition hover:border-slate-200 hover:bg-white focus:border-maroon-600 focus:bg-white focus:text-slate-700 focus:ring-1 focus:ring-maroon-600"
+                    className="rounded-md border border-transparent bg-transparent px-1 py-0.5 text-[11px] text-slate-500 outline-none transition hover:border-slate-200 hover:bg-white focus:border-maroon-700 focus:bg-white focus:text-slate-700 focus:ring-1 focus:ring-maroon-700"
                   />
                 </span>
                 <button
@@ -369,7 +369,7 @@ export function ActiveRepairFlow({
   const { triggerReInspection } = useFleet();
 
   return (
-    <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-4">
+    <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-rose-800">
         <WrenchIcon className="h-4 w-4" />
         Inspection failed — repairs required

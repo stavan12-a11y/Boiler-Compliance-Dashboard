@@ -34,7 +34,7 @@ body,
   }
 
   .btn-primary {
-    @apply btn bg-maroon-850 text-white hover:bg-maroon-800 focus-visible:ring-maroon-700;
+    @apply btn bg-maroon-900 text-white hover:bg-maroon-800 focus-visible:ring-maroon-700;
   }
 
   .btn-secondary {
@@ -46,7 +46,7 @@ body,
   }
 
   .input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-maroon-600 focus:outline-none focus:ring-1 focus:ring-maroon-600;
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-maroon-700 focus:outline-none focus:ring-1 focus:ring-maroon-700;
   }
 
   .label {

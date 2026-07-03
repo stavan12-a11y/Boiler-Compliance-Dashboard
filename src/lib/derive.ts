@@ -135,16 +135,7 @@ export function getFleetStats(boilers: Boiler[]): FleetStats {
 
 export const STATUS_META: Record<
   BoilerStatus,
-  {
-    label: string;
-    dot: string;
-    ring: string;
-    text: string;
-    badgeBg: string;
-    cardBanner: string;
-    cardRing: string;
-    cardBadge: string;
-  }
+  { label: string; dot: string; ring: string; text: string; badgeBg: string }
 > = {
   failed: {
     label: "Needs repairs",
@@ -152,9 +143,6 @@ export const STATUS_META: Record<
     ring: "ring-rose-200",
     text: "text-rose-700",
     badgeBg: "bg-rose-50",
-    cardBanner: "bg-rose-500 text-white",
-    cardRing: "ring-2 ring-rose-400/45",
-    cardBadge: "bg-white/20 text-white",
   },
   active: {
     label: "Inspection underway",
@@ -162,9 +150,6 @@ export const STATUS_META: Record<
     ring: "ring-amber-200",
     text: "text-amber-700",
     badgeBg: "bg-amber-50",
-    cardBanner: "bg-amber-500 text-white",
-    cardRing: "ring-2 ring-amber-400/45",
-    cardBadge: "bg-white/20 text-white",
   },
   passed: {
     label: "Passed & complete",
@@ -172,28 +157,12 @@ export const STATUS_META: Record<
     ring: "ring-emerald-200",
     text: "text-emerald-700",
     badgeBg: "bg-emerald-50",
-    cardBanner: "bg-emerald-500 text-white",
-    cardRing: "ring-2 ring-emerald-400/45",
-    cardBadge: "bg-white/20 text-white",
   },
   none: {
     label: "No inspection yet",
     dot: "bg-slate-400",
     ring: "ring-slate-200",
     text: "text-slate-600",
-    badgeBg: "bg-slate-50",
-    cardBanner: "bg-slate-500 text-white",
-    cardRing: "",
-    cardBadge: "bg-white/20 text-white",
+    badgeBg: "bg-slate-100",
   },
-};
-
-export const OVERDUE_CARD = {
-  label: "Overdue inspection",
-  cardBanner: "bg-orange-500 text-white",
-  cardRing: "ring-2 ring-orange-400/45",
-  cardBadge: "bg-white/20 text-white",
-  footer: "border-orange-100 bg-orange-50",
-  footerText: "text-orange-800",
-  footerIcon: "text-orange-500",
 };

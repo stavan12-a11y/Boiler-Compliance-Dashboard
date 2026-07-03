@@ -27,7 +27,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-maroon-850 to-maroon-900 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-maroon-900 to-maroon-950 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center text-white">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
@@ -43,7 +43,7 @@ export function LoginScreen() {
 
         <form onSubmit={submit} className="rounded-2xl bg-white p-6 shadow-xl">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
-            <LockIcon className="h-5 w-5 text-maroon-600" />
+            <LockIcon className="h-5 w-5 text-maroon-700" />
             Sign in
           </h2>
 
@@ -76,7 +76,7 @@ export function LoginScreen() {
           </label>
 
           {error && (
-            <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-rose-600">
+            <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-red-600">
               <AlertIcon className="h-4 w-4" />
               {error}
             </p>

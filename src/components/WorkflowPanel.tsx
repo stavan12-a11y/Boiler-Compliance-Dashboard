@@ -74,7 +74,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-maroon-600 focus:ring-1 focus:ring-maroon-600"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
           />
         </label>
         <div className="block">
@@ -87,7 +87,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
               onClick={() => setResult("pass")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                 result === "pass"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  ? "border-emerald-400 bg-emerald-50 text-emerald-700"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
@@ -98,7 +98,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
               onClick={() => setResult("fail")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                 result === "fail"
-                  ? "border-rose-300 bg-rose-50 text-rose-800"
+                  ? "border-rose-400 bg-rose-50 text-rose-700"
                   : "border-slate-300 bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
@@ -121,7 +121,7 @@ function StartInspectionForm({ boiler }: { boiler: Boiler }) {
               ? "Observations, readings, anything worth recording…"
               : "Describe the defects / reasons for failure…"
           }
-          className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-maroon-600 focus:ring-1 focus:ring-maroon-600"
+          className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
         />
       </label>
 
