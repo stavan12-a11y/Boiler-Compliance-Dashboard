@@ -1,8 +1,10 @@
-import type { ActivityEntry, Boiler } from "../types";
+import type { ActivityEntry, Boiler, KpiSnapshot } from "../types";
+import { createDemoKpiHistory } from "./kpi";
 import { createDemoBoilers } from "./demo";
 
 const STORAGE_KEY = "boiler-inspection-management:v2";
 const ACTIVITY_KEY = "boiler-inspection-management:activity:v1";
+const KPI_HISTORY_KEY = "boiler-inspection-management:kpi-history:v1";
 
 type LegacyBoiler = Omit<
   Boiler,
@@ -87,6 +89,28 @@ export function loadActivity(): ActivityEntry[] {
 export function saveActivity(entries: ActivityEntry[]): void {
   try {
     localStorage.setItem(ACTIVITY_KEY, JSON.stringify(entries));
+  } catch {
+    // ignore
+  }
+}
+
+export function loadKpiHistory(boilers: Boiler[]): KpiSnapshot[] {
+  try {
+    const raw = localStorage.getItem(KPI_HISTORY_KEY);
+    if (!raw) return createDemoKpiHistory(boilers);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return createDemoKpiHistory(boilers);
+    }
+    return parsed as KpiSnapshot[];
+  } catch {
+    return createDemoKpiHistory(boilers);
+  }
+}
+
+export function saveKpiHistory(history: KpiSnapshot[]): void {
+  try {
+    localStorage.setItem(KPI_HISTORY_KEY, JSON.stringify(history));
   } catch {
     // ignore
   }

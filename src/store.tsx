@@ -14,16 +14,20 @@ import type {
   Boiler,
   Inspection,
   InspectionResult,
+  KpiSnapshot,
 } from "./types";
 import { WORKFLOW_STEPS } from "./types";
 import { createDemoBoilers } from "./lib/demo";
 import {
   loadActivity,
   loadBoilers,
+  loadKpiHistory,
   migrateBoilers,
   saveActivity,
   saveBoilers,
+  saveKpiHistory,
 } from "./lib/storage";
+import { appendKpiSnapshot, createDemoKpiHistory, normalizeKpiHistory } from "./lib/kpi";
 import {
   isSupabaseConfigured,
   STATE_ROW_ID,
@@ -146,6 +150,8 @@ interface FleetContextValue {
   /** Chronological audit trail of every change (most recent first). */
   activity: ActivityEntry[];
   clearActivity: () => void;
+  /** Point-in-time KPI snapshots for trend comparison. */
+  kpiHistory: KpiSnapshot[];
   /** Cloud sync state ('local' when running without Supabase). */
   syncStatus: SyncStatus;
 }
@@ -188,6 +194,9 @@ export function FleetProvider({ children }: { children: ReactNode }) {
   const [activity, setActivity] = useState<ActivityEntry[]>(() =>
     cloud ? [] : loadActivity()
   );
+  const [kpiHistory, setKpiHistory] = useState<KpiSnapshot[]>(() =>
+    cloud ? [] : loadKpiHistory(loadBoilers())
+  );
   const [synced, setSynced] = useState(!cloud);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(
     cloud ? "loading" : "local"
@@ -195,6 +204,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
   const firstRun = useRef(true);
   const applyingRemote = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const kpiTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Keep a live ref of boilers so actions can read the "before" value of edits
   // without depending on a stale closure.
@@ -220,6 +230,21 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     saveActivity(activity);
   }, [activity, cloud]);
 
+  useEffect(() => {
+    if (cloud) return;
+    saveKpiHistory(kpiHistory);
+  }, [kpiHistory, cloud]);
+
+  useEffect(() => {
+    if (kpiTimer.current) clearTimeout(kpiTimer.current);
+    kpiTimer.current = setTimeout(() => {
+      setKpiHistory((prev) => appendKpiSnapshot(prev, boilersRef.current, nowIso()));
+    }, 1500);
+    return () => {
+      if (kpiTimer.current) clearTimeout(kpiTimer.current);
+    };
+  }, [boilers]);
+
   // --- Cloud mode: load shared state + subscribe to live changes -----------
   useEffect(() => {
     if (!cloud || !authed || !supabase) return;
@@ -242,15 +267,27 @@ export function FleetProvider({ children }: { children: ReactNode }) {
           Array.isArray(state.boilers) ? migrateBoilers(state.boilers) : []
         );
         setActivity(Array.isArray(state.activity) ? state.activity : []);
+        setKpiHistory(
+          normalizeKpiHistory(
+            state.kpiHistory,
+            Array.isArray(state.boilers) ? migrateBoilers(state.boilers) : []
+          )
+        );
       } else if (!error) {
         // First run: seed the shared table with the demo fleet.
-        const seed: AppState = { boilers: createDemoBoilers(), activity: [] };
+        const demoBoilers = createDemoBoilers();
+        const seed: AppState = {
+          boilers: demoBoilers,
+          activity: [],
+          kpiHistory: createDemoKpiHistory(demoBoilers),
+        };
         await sb
           .from(STATE_TABLE)
           .upsert({ id: STATE_ROW_ID, data: seed, updated_at: new Date().toISOString() });
         applyingRemote.current = true;
         setBoilers(seed.boilers);
         setActivity(seed.activity);
+        setKpiHistory(seed.kpiHistory);
       }
       setSynced(true);
       setSyncStatus(error ? "error" : "saved");
@@ -279,6 +316,14 @@ export function FleetProvider({ children }: { children: ReactNode }) {
             setActivity(
               Array.isArray(incoming.activity) ? incoming.activity : []
             );
+            setKpiHistory(
+              normalizeKpiHistory(
+                incoming.kpiHistory,
+                Array.isArray(incoming.boilers)
+                  ? migrateBoilers(incoming.boilers)
+                  : []
+              )
+            );
             setSyncStatus("saved");
           }
         }
@@ -302,7 +347,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     const sb = supabase;
     setSyncStatus("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    const snapshot: AppState = { boilers, activity };
+    const snapshot: AppState = { boilers, activity, kpiHistory };
     saveTimer.current = setTimeout(() => {
       sb.from(STATE_TABLE)
         .upsert({
@@ -315,7 +360,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [boilers, activity, cloud, authed, synced]);
+  }, [boilers, activity, kpiHistory, cloud, authed, synced]);
 
   const pushLog = useCallback(
     (entry: Omit<ActivityEntry, "id" | "at">) => {
@@ -799,8 +844,10 @@ export function FleetProvider({ children }: { children: ReactNode }) {
   );
 
   const resetToDemo = useCallback(() => {
-    setBoilers(createDemoBoilers());
+    const demoBoilers = createDemoBoilers();
+    setBoilers(demoBoilers);
     setActivity([]);
+    setKpiHistory(createDemoKpiHistory(demoBoilers));
   }, []);
 
   const value = useMemo<FleetContextValue>(
@@ -824,6 +871,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       resetToDemo,
       activity,
       clearActivity,
+      kpiHistory,
       syncStatus,
     }),
     [
@@ -846,6 +894,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       resetToDemo,
       activity,
       clearActivity,
+      kpiHistory,
       syncStatus,
     ]
   );

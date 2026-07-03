@@ -66,6 +66,7 @@ export interface Boiler {
 export interface AppState {
   boilers: Boiler[];
   activity: ActivityEntry[];
+  kpiHistory: KpiSnapshot[];
 }
 
 export interface ActivityEntry {
@@ -90,3 +91,34 @@ export interface ActivityEntry {
  * - none:    gray  — no inspection has been started yet
  */
 export type BoilerStatus = "failed" | "active" | "passed" | "none";
+
+export type KpiFilterKey =
+  | "all"
+  | "compliant"
+  | "overdue"
+  | "dueSoon"
+  | "failed"
+  | "withDowntime";
+
+export type KpiTrendMetric =
+  | "total"
+  | "compliant"
+  | "complianceRate"
+  | "overdue"
+  | "dueSoon"
+  | "failed"
+  | "avgDowntime";
+
+/** Point-in-time fleet KPI metrics for trend comparison. */
+export interface KpiSnapshot {
+  id: string;
+  /** ISO timestamp when the snapshot was recorded. */
+  at: string;
+  total: number;
+  compliant: number;
+  complianceRate: number;
+  overdue: number;
+  dueSoon: number;
+  failed: number;
+  avgDowntimeDays: number | null;
+}

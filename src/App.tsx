@@ -1,18 +1,21 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FleetProvider, useFleet } from "./store";
-import { boilerToCsv, downloadCsv, fleetToCsv, slugify } from "./lib/csv";
+import { boilerToCsv, downloadCsv, slugify } from "./lib/csv";
 import { getBoilerStatus } from "./lib/derive";
-import type { BoilerStatus } from "./types";
+import { filterBoilersByKpi, KPI_FILTER_LABELS } from "./lib/kpi";
+import type { BoilerStatus, KpiFilterKey } from "./types";
 import { SummaryCards } from "./components/SummaryCards";
 import { BoilerCard } from "./components/BoilerCard";
 import { Sidebar } from "./components/Sidebar";
 import { BoilerDetail } from "./components/BoilerDetail";
 import { AddBoilerModal } from "./components/AddBoilerModal";
+import { DownloadDataModal } from "./components/DownloadDataModal";
 import { SyncIndicator } from "./components/SyncIndicator";
 import { StatusDot } from "./components/ui";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginScreen } from "./auth/LoginScreen";
 import {
+  CloseIcon,
   DownloadIcon,
   FlameIcon,
   LoaderIcon,
@@ -30,18 +33,21 @@ const FILTERS: { key: BoilerStatus | "all"; label: string }[] = [
 ];
 
 function Dashboard() {
-  const { boilers, resetToDemo } = useFleet();
+  const { boilers, resetToDemo, kpiHistory } = useFleet();
   const { logout } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [showDownload, setShowDownload] = useState(false);
   const [filter, setFilter] = useState<BoilerStatus | "all">("all");
+  const [kpiFilter, setKpiFilter] = useState<KpiFilterKey>("all");
   const [query, setQuery] = useState("");
+  const fleetRef = useRef<HTMLDivElement>(null);
 
   const selected = boilers.find((b) => b.id === selectedId) ?? null;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return boilers.filter((b) => {
+    return filterBoilersByKpi(boilers, kpiFilter).filter((b) => {
       if (filter !== "all" && getBoilerStatus(b) !== filter) return false;
       if (!q) return true;
       return (
@@ -53,10 +59,11 @@ function Dashboard() {
         b.nationalBoardNumber.toLowerCase().includes(q)
       );
     });
-  }, [boilers, filter, query]);
+  }, [boilers, kpiFilter, filter, query]);
 
-  function exportFleet() {
-    downloadCsv("boiler-fleet-export.csv", fleetToCsv(boilers));
+  function handleSelectKpi(kpi: KpiFilterKey) {
+    setKpiFilter(kpi);
+    fleetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function handleReset() {
@@ -67,12 +74,12 @@ function Dashboard() {
     ) {
       resetToDemo();
       setSelectedId(null);
+      setKpiFilter("all");
     }
   }
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <header className="sticky top-0 z-30 border-b border-maroon-800 bg-maroon-900 text-white shadow-md">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
@@ -93,12 +100,12 @@ function Dashboard() {
             <SyncIndicator />
             <button
               type="button"
-              onClick={exportFleet}
+              onClick={() => setShowDownload(true)}
               className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-maroon-100 transition hover:bg-white/10"
-              title="Export the whole fleet to CSV"
+              title="Download fleet and KPI data"
             >
               <DownloadIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Export fleet</span>
+              <span className="hidden sm:inline">Download data</span>
             </button>
             <button
               type="button"
@@ -130,14 +137,17 @@ function Dashboard() {
             Fleet Compliance Overview
           </h2>
           <p className="text-sm text-slate-500">
-            Inspection status and safety compliance across all monitored boilers.
+            Click a KPI card to filter the fleet below to those boilers.
           </p>
         </div>
 
-        <SummaryCards boilers={boilers} />
+        <SummaryCards
+          boilers={boilers}
+          activeKpi={kpiFilter}
+          onSelectKpi={handleSelectKpi}
+        />
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          {/* Fleet */}
+        <div ref={fleetRef} className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
@@ -150,6 +160,24 @@ function Dashboard() {
                 Add boiler
               </button>
             </div>
+
+            {kpiFilter !== "all" && (
+              <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-maroon-100 bg-maroon-50 px-3 py-2 text-sm text-maroon-900">
+                <span>
+                  Showing <strong>{visible.length}</strong> boiler
+                  {visible.length === 1 ? "" : "s"} for{" "}
+                  <strong>{KPI_FILTER_LABELS[kpiFilter]}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setKpiFilter("all")}
+                  className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-maroon-800 ring-1 ring-maroon-200 transition hover:bg-maroon-100"
+                >
+                  <CloseIcon className="h-3 w-3" />
+                  Clear KPI filter
+                </button>
+              </div>
+            )}
 
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
@@ -185,7 +213,7 @@ function Dashboard() {
                   No boilers match your filters
                 </p>
                 <p className="text-xs text-slate-400">
-                  Try a different filter or add a new boiler.
+                  Try a different KPI, status filter, or search term.
                 </p>
               </div>
             ) : (
@@ -215,6 +243,13 @@ function Dashboard() {
         <BoilerDetail boiler={selected} onClose={() => setSelectedId(null)} />
       )}
       {adding && <AddBoilerModal onClose={() => setAdding(false)} />}
+      {showDownload && (
+        <DownloadDataModal
+          boilers={boilers}
+          kpiHistory={kpiHistory}
+          onClose={() => setShowDownload(false)}
+        />
+      )}
     </div>
   );
 }

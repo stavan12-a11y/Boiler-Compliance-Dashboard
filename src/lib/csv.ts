@@ -1,5 +1,7 @@
-import type { Boiler, Inspection } from "../types";
+import type { Boiler, Inspection, KpiSnapshot, KpiTrendMetric } from "../types";
 import { getBoilerStatus, getLastInspectedDate, STATUS_META } from "./derive";
+import { KPI_FILTER_LABELS, KPI_TREND_LABELS, snapshotMetricValue } from "./kpi";
+import { formatDate } from "./helpers";
 
 function esc(value: unknown): string {
   const s = value === null || value === undefined ? "" : String(value);
@@ -138,6 +140,67 @@ export function fleetToCsv(boilers: Boiler[]): string {
         b.history.length,
       ])
     );
+  }
+
+  return lines.join("\r\n");
+}
+
+/** Fleet CSV scoped to a KPI category with a context header row. */
+export function kpiBoilersToCsv(boilers: Boiler[], kpiKey: keyof typeof KPI_FILTER_LABELS): string {
+  const label = KPI_FILTER_LABELS[kpiKey];
+  const lines: string[] = [
+    row(["KPI Category", label]),
+    row(["Boiler Count", boilers.length]),
+    row(["Exported At", new Date().toISOString()]),
+    "",
+  ];
+  lines.push(fleetToCsv(boilers));
+  return lines.join("\r\n");
+}
+
+/** Wide-format trend CSV for comparing KPI metrics over time. */
+export function kpiTrendToCsv(
+  snapshots: KpiSnapshot[],
+  metrics: KpiTrendMetric[]
+): string {
+  const sorted = [...snapshots].sort(
+    (a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()
+  );
+  const header = ["Date", ...metrics.map((m) => KPI_TREND_LABELS[m])];
+  const lines: string[] = [row(header)];
+  for (const snap of sorted) {
+    lines.push(
+      row([
+        formatDate(snap.at.slice(0, 10)),
+        ...metrics.map((m) => snapshotMetricValue(snap, m)),
+      ])
+    );
+  }
+  return lines.join("\r\n");
+}
+
+/** One CSV file per KPI metric for side-by-side trend comparison. */
+export function kpiTrendBundleCsv(
+  snapshots: KpiSnapshot[],
+  metrics: KpiTrendMetric[]
+): string {
+  const sorted = [...snapshots].sort(
+    (a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()
+  );
+  const lines: string[] = [
+    row(["KPI Trend Comparison"]),
+    row(["Snapshots", sorted.length]),
+    row(["Exported At", new Date().toISOString()]),
+    "",
+  ];
+
+  for (const metric of metrics) {
+    lines.push(row(["Metric", KPI_TREND_LABELS[metric]]));
+    lines.push(row(["Date", "Value"]));
+    for (const snap of sorted) {
+      lines.push(row([formatDate(snap.at.slice(0, 10)), snapshotMetricValue(snap, metric)]));
+    }
+    lines.push("");
   }
 
   return lines.join("\r\n");
