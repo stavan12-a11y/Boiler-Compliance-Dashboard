@@ -19,7 +19,6 @@ import {
   LoaderIcon,
   LogOutIcon,
   PlusIcon,
-  RefreshIcon,
 } from "./components/icons";
 
 const FILTERS: { key: BoilerStatus | "all"; label: string }[] = [
@@ -31,7 +30,7 @@ const FILTERS: { key: BoilerStatus | "all"; label: string }[] = [
 ];
 
 function Dashboard() {
-  const { boilers, resetToDemo, kpiHistory } = useFleet();
+  const { boilers, kpiHistory } = useFleet();
   const { logout } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -56,17 +55,6 @@ function Dashboard() {
       );
     });
   }, [boilers, filter, query]);
-
-  function handleReset() {
-    if (
-      window.confirm(
-        "Reset everything back to demo data? Your current changes will be lost."
-      )
-    ) {
-      resetToDemo();
-      setSelectedId(null);
-    }
-  }
 
   return (
     <div className="min-h-screen">
@@ -96,15 +84,6 @@ function Dashboard() {
             >
               <DownloadIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Download data</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-maroon-100 transition hover:bg-white/10"
-              title="Reset to demo data"
-            >
-              <RefreshIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Reset</span>
             </button>
             <button
               type="button"
