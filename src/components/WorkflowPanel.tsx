@@ -164,8 +164,8 @@ export function WorkflowPanel({ boiler }: { boiler: Boiler }) {
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <EditableStepList boilerId={boiler.id} inspection={active} mode="active" />
         <p className="mt-2 px-1 text-[11px] text-slate-400">
-          Tap a step circle to mark it done or undo it. Completing the final step
-          archives this inspection to History automatically.
+          Click the step number or Complete button once to advance. Future steps
+          unlock as you finish each one.
         </p>
       </div>
     </div>
