@@ -169,7 +169,7 @@ export function BoilerCard({
           <p className="flex items-center gap-1.5">
             <GaugeIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
             <span className="truncate">
-              {boiler.capacity} · {boiler.pressureRating}
+              {boiler.capacity} · {boiler.stampedMawp}
             </span>
           </p>
           <p className="flex items-center gap-1.5">

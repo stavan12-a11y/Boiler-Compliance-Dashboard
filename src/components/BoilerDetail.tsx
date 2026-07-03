@@ -11,6 +11,7 @@ import { formatDate } from "../lib/helpers";
 import { EditableField, StatusBadge, Warning } from "./ui";
 import { WorkflowPanel } from "./WorkflowPanel";
 import { HistoryTab } from "./HistoryTab";
+import { ActivityLogContent } from "./ActivityLog";
 import {
   AlertIcon,
   ArrowLeftIcon,
@@ -22,7 +23,13 @@ import {
   TrashIcon,
 } from "./icons";
 
-type Tab = "overview" | "history";
+type Tab = "overview" | "inspections" | "changes";
+
+const TAB_LABELS: Record<Tab, string> = {
+  overview: "Overview",
+  inspections: "Inspections",
+  changes: "Change history",
+};
 
 export function BoilerDetail({
   boiler,
@@ -31,10 +38,11 @@ export function BoilerDetail({
   boiler: Boiler;
   onClose: () => void;
 }) {
-  const { updateBoilerField, removeBoiler } = useFleet();
+  const { updateBoilerField, removeBoiler, activity } = useFleet();
   const [tab, setTab] = useState<Tab>("overview");
   const status = getBoilerStatus(boiler);
   const schedule = getScheduleInfo(boiler);
+  const changeCount = activity.filter((e) => e.boilerId === boiler.id).length;
   const lastInspected = getLastInspectedDate(boiler);
 
   useEffect(() => {
@@ -110,21 +118,26 @@ export function BoilerDetail({
 
             {/* Tabs */}
             <div className="mt-3 flex gap-1">
-              {(["overview", "history"] as Tab[]).map((t) => (
+              {(["overview", "inspections", "changes"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setTab(t)}
-                  className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold capitalize transition ${
+                  className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition ${
                     tab === t
                       ? "bg-maroon-100 text-maroon-800"
                       : "text-slate-500 hover:bg-slate-100"
                   }`}
                 >
-                  {t}
-                  {t === "history" && boiler.history.length > 0 && (
+                  {TAB_LABELS[t]}
+                  {t === "inspections" && boiler.history.length > 0 && (
                     <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 text-[10px] text-slate-600">
                       {boiler.history.length}
+                    </span>
+                  )}
+                  {t === "changes" && changeCount > 0 && (
+                    <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 text-[10px] text-slate-600">
+                      {changeCount > 99 ? "99+" : changeCount}
                     </span>
                   )}
                 </button>
@@ -162,10 +175,24 @@ export function BoilerDetail({
                     onCommit={(v) => updateBoilerField(boiler.id, "capacity", v)}
                   />
                   <EditableField
-                    label="Pressure rating"
-                    value={boiler.pressureRating}
+                    label="Stamped MAWP"
+                    value={boiler.stampedMawp}
                     onCommit={(v) =>
-                      updateBoilerField(boiler.id, "pressureRating", v)
+                      updateBoilerField(boiler.id, "stampedMawp", v)
+                    }
+                  />
+                  <EditableField
+                    label="Texas boiler #"
+                    value={boiler.texasBoilerNumber}
+                    onCommit={(v) =>
+                      updateBoilerField(boiler.id, "texasBoilerNumber", v)
+                    }
+                  />
+                  <EditableField
+                    label="National board number"
+                    value={boiler.nationalBoardNumber}
+                    onCommit={(v) =>
+                      updateBoilerField(boiler.id, "nationalBoardNumber", v)
                     }
                   />
                   <EditableField
@@ -246,9 +273,13 @@ export function BoilerDetail({
                 <WorkflowPanel boiler={boiler} />
               </section>
             </div>
-          ) : (
+          ) : tab === "inspections" ? (
             <div className="max-w-3xl">
               <HistoryTab boiler={boiler} />
+            </div>
+          ) : (
+            <div className="max-w-3xl">
+              <ActivityLogContent boilerId={boiler.id} showBoilerName={false} />
             </div>
           )}
         </div>

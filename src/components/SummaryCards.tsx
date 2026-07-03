@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Boiler } from "../types";
 import { getFleetStats } from "../lib/derive";
 import { formatAverageDuration } from "../lib/helpers";
-import { AlertIcon, ClockIcon, GaugeIcon, LayersIcon } from "./icons";
+import { AlertIcon, ClockIcon, LayersIcon } from "./icons";
 
 function Card({
   label,
@@ -37,7 +37,7 @@ function Card({
 
 export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
   const stats = getFleetStats(boilers);
-  const avg = formatAverageDuration(stats.completedDurations);
+  const avgDowntime = formatAverageDuration(stats.completedDurations);
 
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -48,10 +48,11 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
         accent="bg-slate-100"
       />
       <Card
-        label="Active inspections"
-        value={stats.active}
-        icon={<GaugeIcon className="h-5 w-5 text-amber-600" />}
-        accent="bg-amber-50"
+        label="Overdue inspections"
+        value={stats.overdue}
+        hint={stats.dueSoon > 0 ? `${stats.dueSoon} due within 30 days` : undefined}
+        icon={<ClockIcon className="h-5 w-5 text-orange-600" />}
+        accent="bg-orange-50"
       />
       <Card
         label="Failed / needs repair"
@@ -60,9 +61,9 @@ export function SummaryCards({ boilers }: { boilers: Boiler[] }) {
         accent="bg-red-50"
       />
       <Card
-        label="Avg. inspection time"
-        value={avg}
-        hint={`${stats.completedDurations.length} completed`}
+        label="Average downtime"
+        value={avgDowntime}
+        hint={`${stats.completedDurations.length} completed inspections`}
         icon={<ClockIcon className="h-5 w-5 text-sky-600" />}
         accent="bg-sky-50"
       />

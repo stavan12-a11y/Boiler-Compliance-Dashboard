@@ -80,6 +80,8 @@ export interface FleetStats {
   total: number;
   active: number;
   failed: number;
+  overdue: number;
+  dueSoon: number;
   /** Durations (ms) of all completed inspections across the fleet. */
   completedDurations: number[];
 }
@@ -87,12 +89,18 @@ export interface FleetStats {
 export function getFleetStats(boilers: Boiler[]): FleetStats {
   let active = 0;
   let failed = 0;
+  let overdue = 0;
+  let dueSoon = 0;
   const completedDurations: number[] = [];
 
   for (const boiler of boilers) {
     const status = getBoilerStatus(boiler);
     if (status === "active") active += 1;
     if (status === "failed") failed += 1;
+
+    const schedule = getScheduleInfo(boiler);
+    if (schedule.isOverdue) overdue += 1;
+    else if (schedule.isDueSoon) dueSoon += 1;
 
     const completed: Inspection[] = [...boiler.history];
     if (boiler.activeInspection?.status === "completed") {
@@ -104,7 +112,14 @@ export function getFleetStats(boilers: Boiler[]): FleetStats {
     }
   }
 
-  return { total: boilers.length, active, failed, completedDurations };
+  return {
+    total: boilers.length,
+    active,
+    failed,
+    overdue,
+    dueSoon,
+    completedDurations,
+  };
 }
 
 export const STATUS_META: Record<

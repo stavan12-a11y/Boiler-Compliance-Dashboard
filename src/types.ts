@@ -47,10 +47,15 @@ export interface Boiler {
   name: string;
   type: string;
   capacity: string;
-  pressureRating: string;
+  /** Maximum allowable working pressure stamped on the boiler nameplate. */
+  stampedMawp: string;
   manufacturer: string;
   installDate: string;
   location: string;
+  /** Texas state boiler registration number. */
+  texasBoilerNumber: string;
+  /** National Board registration number. */
+  nationalBoardNumber: string;
   /** How often (in years) this boiler must be inspected. */
   inspectionIntervalYears: number;
   activeInspection: Inspection | null;

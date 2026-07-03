@@ -4,20 +4,40 @@ import { createDemoBoilers } from "./demo";
 const STORAGE_KEY = "boiler-inspection-management:v2";
 const ACTIVITY_KEY = "boiler-inspection-management:activity:v1";
 
-type LegacyBoiler = Omit<Boiler, "inspectionIntervalYears"> & {
+type LegacyBoiler = Omit<
+  Boiler,
+  "inspectionIntervalYears" | "stampedMawp" | "texasBoilerNumber" | "nationalBoardNumber"
+> & {
   inspectionIntervalDays?: number;
   inspectionIntervalYears?: number;
+  pressureRating?: string;
+  stampedMawp?: string;
+  texasBoilerNumber?: string;
+  nationalBoardNumber?: string;
 };
 
 export function migrateBoiler(raw: LegacyBoiler): Boiler {
-  if (typeof raw.inspectionIntervalYears === "number") {
-    return raw as Boiler;
-  }
-  const days = raw.inspectionIntervalDays ?? 365;
-  const { inspectionIntervalDays: _legacy, ...rest } = raw;
+  const {
+    inspectionIntervalDays: _days,
+    pressureRating,
+    inspectionIntervalYears: rawYears,
+    stampedMawp,
+    texasBoilerNumber,
+    nationalBoardNumber,
+    ...rest
+  } = raw;
+
+  const inspectionIntervalYears =
+    typeof rawYears === "number"
+      ? rawYears
+      : (raw.inspectionIntervalDays ?? 365) / 365;
+
   return {
     ...rest,
-    inspectionIntervalYears: days / 365,
+    stampedMawp: stampedMawp ?? pressureRating ?? "",
+    texasBoilerNumber: texasBoilerNumber ?? "",
+    nationalBoardNumber: nationalBoardNumber ?? "",
+    inspectionIntervalYears,
   } as Boiler;
 }
 

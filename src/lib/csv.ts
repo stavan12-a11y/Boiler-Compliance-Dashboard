@@ -57,7 +57,9 @@ export function boilerToCsv(boiler: Boiler): string {
   lines.push(row(["Specs", "Name", boiler.name]));
   lines.push(row(["Specs", "Type", boiler.type]));
   lines.push(row(["Specs", "Capacity", boiler.capacity]));
-  lines.push(row(["Specs", "Pressure Rating", boiler.pressureRating]));
+  lines.push(row(["Specs", "Stamped MAWP", boiler.stampedMawp]));
+  lines.push(row(["Specs", "Texas Boiler #", boiler.texasBoilerNumber]));
+  lines.push(row(["Specs", "National Board Number", boiler.nationalBoardNumber]));
   lines.push(row(["Specs", "Manufacturer", boiler.manufacturer]));
   lines.push(row(["Specs", "Install Date", boiler.installDate]));
   lines.push(row(["Specs", "Location", boiler.location]));
@@ -92,7 +94,9 @@ export function fleetToCsv(boilers: Boiler[]): string {
     "Name",
     "Type",
     "Capacity",
-    "Pressure Rating",
+    "Stamped MAWP",
+    "Texas Boiler #",
+    "National Board Number",
     "Manufacturer",
     "Install Date",
     "Location",
@@ -118,7 +122,9 @@ export function fleetToCsv(boilers: Boiler[]): string {
         b.name,
         b.type,
         b.capacity,
-        b.pressureRating,
+        b.stampedMawp,
+        b.texasBoilerNumber,
+        b.nationalBoardNumber,
         b.manufacturer,
         b.installDate,
         b.location,

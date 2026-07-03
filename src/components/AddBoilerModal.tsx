@@ -6,10 +6,12 @@ const EMPTY: NewBoilerInput = {
   name: "",
   type: "Fire-tube",
   capacity: "",
-  pressureRating: "",
+  stampedMawp: "",
   manufacturer: "",
   installDate: new Date().toISOString().slice(0, 10),
   location: "",
+  texasBoilerNumber: "",
+  nationalBoardNumber: "",
   inspectionIntervalYears: 1,
 };
 
@@ -118,11 +120,27 @@ export function AddBoilerModal({ onClose }: { onClose: () => void }) {
               className={inputCls}
             />
           </Field>
-          <Field label="Pressure rating">
+          <Field label="Stamped MAWP">
             <input
-              value={form.pressureRating}
-              onChange={(e) => set("pressureRating", e.target.value)}
-              placeholder="e.g. 12 bar"
+              value={form.stampedMawp}
+              onChange={(e) => set("stampedMawp", e.target.value)}
+              placeholder="e.g. 150 psi"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Texas boiler #">
+            <input
+              value={form.texasBoilerNumber}
+              onChange={(e) => set("texasBoilerNumber", e.target.value)}
+              placeholder="e.g. TX-4821"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="National board number">
+            <input
+              value={form.nationalBoardNumber}
+              onChange={(e) => set("nationalBoardNumber", e.target.value)}
+              placeholder="e.g. NB-123456"
               className={inputCls}
             />
           </Field>

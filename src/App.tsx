@@ -8,7 +8,6 @@ import { BoilerCard } from "./components/BoilerCard";
 import { Sidebar } from "./components/Sidebar";
 import { BoilerDetail } from "./components/BoilerDetail";
 import { AddBoilerModal } from "./components/AddBoilerModal";
-import { ActivityLog } from "./components/ActivityLog";
 import { SyncIndicator } from "./components/SyncIndicator";
 import { StatusDot } from "./components/ui";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
@@ -16,7 +15,6 @@ import { LoginScreen } from "./auth/LoginScreen";
 import {
   DownloadIcon,
   FlameIcon,
-  HistoryClockIcon,
   LoaderIcon,
   LogOutIcon,
   PlusIcon,
@@ -32,11 +30,10 @@ const FILTERS: { key: BoilerStatus | "all"; label: string }[] = [
 ];
 
 function Dashboard() {
-  const { boilers, resetToDemo, activity } = useFleet();
+  const { boilers, resetToDemo } = useFleet();
   const { logout } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [showActivity, setShowActivity] = useState(false);
   const [filter, setFilter] = useState<BoilerStatus | "all">("all");
   const [query, setQuery] = useState("");
 
@@ -51,7 +48,9 @@ function Dashboard() {
         b.name.toLowerCase().includes(q) ||
         b.location.toLowerCase().includes(q) ||
         b.type.toLowerCase().includes(q) ||
-        b.manufacturer.toLowerCase().includes(q)
+        b.manufacturer.toLowerCase().includes(q) ||
+        b.texasBoilerNumber.toLowerCase().includes(q) ||
+        b.nationalBoardNumber.toLowerCase().includes(q)
       );
     });
   }, [boilers, filter, query]);
@@ -92,20 +91,6 @@ function Dashboard() {
 
           <div className="flex items-center gap-1">
             <SyncIndicator />
-            <button
-              type="button"
-              onClick={() => setShowActivity(true)}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-maroon-100 transition hover:bg-white/10"
-              title="View the change history"
-            >
-              <HistoryClockIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">History</span>
-              {activity.length > 0 && (
-                <span className="rounded-full bg-white/20 px-1.5 text-[10px] font-bold text-white">
-                  {activity.length > 99 ? "99+" : activity.length}
-                </span>
-              )}
-            </button>
             <button
               type="button"
               onClick={exportFleet}
@@ -230,7 +215,6 @@ function Dashboard() {
         <BoilerDetail boiler={selected} onClose={() => setSelectedId(null)} />
       )}
       {adding && <AddBoilerModal onClose={() => setAdding(false)} />}
-      {showActivity && <ActivityLog onClose={() => setShowActivity(false)} />}
     </div>
   );
 }

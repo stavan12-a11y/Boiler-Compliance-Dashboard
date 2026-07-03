@@ -22,7 +22,13 @@ function dayKey(iso: string): string {
   return new Date(iso).toISOString().slice(0, 10);
 }
 
-function ChangeRow({ entry }: { entry: ActivityEntry }) {
+function ChangeRow({
+  entry,
+  showBoilerName = true,
+}: {
+  entry: ActivityEntry;
+  showBoilerName?: boolean;
+}) {
   const hasDiff = entry.from !== undefined || entry.to !== undefined;
   return (
     <li className="flex gap-3 px-4 py-3">
@@ -31,9 +37,11 @@ function ChangeRow({ entry }: { entry: ActivityEntry }) {
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-            {entry.boilerName}
-          </span>
+          {showBoilerName && (
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+              {entry.boilerName}
+            </span>
+          )}
           <span className="text-sm text-slate-700">{entry.summary}</span>
         </div>
         {hasDiff && (
@@ -58,9 +66,91 @@ function ChangeRow({ entry }: { entry: ActivityEntry }) {
   );
 }
 
+export function ActivityLogContent({
+  boilerId,
+  showBoilerName = true,
+}: {
+  boilerId?: string;
+  showBoilerName?: boolean;
+}) {
+  const { activity } = useFleet();
+  const [query, setQuery] = useState("");
+
+  const scoped = useMemo(() => {
+    if (!boilerId) return activity;
+    return activity.filter((e) => e.boilerId === boilerId);
+  }, [activity, boilerId]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return scoped;
+    return scoped.filter(
+      (e) =>
+        e.boilerName.toLowerCase().includes(q) ||
+        e.summary.toLowerCase().includes(q) ||
+        (e.from ?? "").toLowerCase().includes(q) ||
+        (e.to ?? "").toLowerCase().includes(q)
+    );
+  }, [scoped, query]);
+
+  const groups = useMemo(() => {
+    const map = new Map<string, ActivityEntry[]>();
+    for (const entry of filtered) {
+      const key = dayKey(entry.at);
+      const arr = map.get(key);
+      if (arr) arr.push(entry);
+      else map.set(key, [entry]);
+    }
+    return Array.from(map.entries());
+  }, [filtered]);
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search changes by field or value…"
+        className="input mb-4"
+      />
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+          <HistoryClockIcon className="mx-auto h-8 w-8 text-slate-300" />
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            {scoped.length === 0
+              ? "No changes recorded yet"
+              : "No changes match your search"}
+          </p>
+          <p className="text-xs text-slate-400">
+            Edits to this boiler&apos;s specs and inspections will appear here
+            with before and after values.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {groups.map(([day, entries]) => (
+            <div key={day}>
+              <div className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+                {formatDate(day)}
+              </div>
+              <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                {entries.map((entry) => (
+                  <ChangeRow
+                    key={entry.id}
+                    entry={entry}
+                    showBoilerName={showBoilerName}
+                  />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ActivityLog({ onClose }: { onClose: () => void }) {
   const { activity, clearActivity } = useFleet();
-  const [query, setQuery] = useState("");
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -73,29 +163,6 @@ export function ActivityLog({ onClose }: { onClose: () => void }) {
       document.body.style.overflow = "";
     };
   }, [onClose]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return activity;
-    return activity.filter(
-      (e) =>
-        e.boilerName.toLowerCase().includes(q) ||
-        e.summary.toLowerCase().includes(q) ||
-        (e.from ?? "").toLowerCase().includes(q) ||
-        (e.to ?? "").toLowerCase().includes(q)
-    );
-  }, [activity, query]);
-
-  const groups = useMemo(() => {
-    const map = new Map<string, ActivityEntry[]>();
-    for (const entry of filtered) {
-      const key = dayKey(entry.at);
-      const arr = map.get(key);
-      if (arr) arr.push(entry);
-      else map.set(key, [entry]);
-    }
-    return Array.from(map.entries());
-  }, [filtered]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-100">
@@ -132,49 +199,11 @@ export function ActivityLog({ onClose }: { onClose: () => void }) {
             )}
           </div>
         </div>
-        <div className="border-b border-slate-200 bg-white">
-          <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search changes by boiler, field, or value…"
-              className="input"
-            />
-          </div>
-        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-          {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-              <HistoryClockIcon className="mx-auto h-8 w-8 text-slate-300" />
-              <p className="mt-2 text-sm font-medium text-slate-500">
-                {activity.length === 0
-                  ? "No changes recorded yet"
-                  : "No changes match your search"}
-              </p>
-              <p className="text-xs text-slate-400">
-                Edits to boilers and inspections will be tracked here with their
-                before and after values.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {groups.map(([day, entries]) => (
-                <div key={day}>
-                  <div className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-slate-400">
-                    {formatDate(day)}
-                  </div>
-                  <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                    {entries.map((entry) => (
-                      <ChangeRow key={entry.id} entry={entry} />
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
+          <ActivityLogContent />
         </div>
       </div>
     </div>

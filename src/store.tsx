@@ -45,10 +45,12 @@ const BOILER_FIELD_LABELS: Partial<Record<keyof Boiler, string>> = {
   name: "Name",
   type: "Type",
   capacity: "Capacity",
-  pressureRating: "Pressure rating",
+  stampedMawp: "Stamped MAWP",
   manufacturer: "Manufacturer",
   installDate: "Install date",
   location: "Location",
+  texasBoilerNumber: "Texas boiler #",
+  nationalBoardNumber: "National board number",
   inspectionIntervalYears: "Inspection interval (years)",
 };
 
@@ -64,10 +66,12 @@ export interface NewBoilerInput {
   name: string;
   type: string;
   capacity: string;
-  pressureRating: string;
+  stampedMawp: string;
   manufacturer: string;
   installDate: string;
   location: string;
+  texasBoilerNumber: string;
+  nationalBoardNumber: string;
   inspectionIntervalYears: number;
 }
 
@@ -352,10 +356,12 @@ export function FleetProvider({ children }: { children: ReactNode }) {
         name: input.name,
         type: input.type,
         capacity: input.capacity,
-        pressureRating: input.pressureRating,
+        stampedMawp: input.stampedMawp,
         manufacturer: input.manufacturer,
         installDate: input.installDate,
         location: input.location,
+        texasBoilerNumber: input.texasBoilerNumber,
+        nationalBoardNumber: input.nationalBoardNumber,
         inspectionIntervalYears: input.inspectionIntervalYears,
         activeInspection: null,
         history: [],
