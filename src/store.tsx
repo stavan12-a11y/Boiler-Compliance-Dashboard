@@ -669,10 +669,16 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     ) => {
       const { boiler, inspection } = findInspection(boilerId, inspectionId);
       const step = inspection?.steps.find((s) => s.key === stepKey);
+      let archived = false;
       setBoilers((prev) =>
-        mapInspection(prev, boilerId, inspectionId, (insp) => ({
-          ...insp,
-          steps: insp.steps.map((s) =>
+        mapBoiler(prev, boilerId, (b) => {
+          const isActive = b.activeInspection?.id === inspectionId;
+          const target = isActive
+            ? b.activeInspection
+            : b.history.find((h) => h.id === inspectionId);
+          if (!target) return b;
+
+          const steps = target.steps.map((s) =>
             s.key === stepKey
               ? {
                   ...s,
@@ -680,8 +686,38 @@ export function FleetProvider({ children }: { children: ReactNode }) {
                   completedAt: completed ? s.completedAt ?? nowIso() : null,
                 }
               : s
-          ),
-        }))
+          );
+
+          if (!isActive) {
+            return {
+              ...b,
+              history: b.history.map((h) =>
+                h.id === inspectionId ? { ...h, steps } : h
+              ),
+            };
+          }
+
+          const allDone = steps.every((s) => s.completed);
+          if (allDone && b.activeInspection) {
+            archived = true;
+            const completedInspection: Inspection = {
+              ...b.activeInspection,
+              steps,
+              status: "completed",
+              completedAt: b.activeInspection.completedAt ?? nowIso(),
+            };
+            return {
+              ...b,
+              activeInspection: null,
+              history: [completedInspection, ...b.history],
+            };
+          }
+
+          return {
+            ...b,
+            activeInspection: { ...b.activeInspection!, steps },
+          };
+        })
       );
       if (boiler && step && step.completed !== completed) {
         pushLog({
@@ -693,6 +729,13 @@ export function FleetProvider({ children }: { children: ReactNode }) {
           from: step.completed ? "Done" : "Not done",
           to: completed ? "Done" : "Not done",
         });
+        if (archived) {
+          pushLog({
+            boilerId,
+            boilerName: boiler.name,
+            summary: "Inspection completed and archived to history",
+          });
+        }
       }
     },
     [findInspection, pushLog]

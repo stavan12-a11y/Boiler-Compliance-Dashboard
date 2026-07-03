@@ -136,6 +136,11 @@ export function EditableStepList({
   const [stepNote, setStepNote] = useState("");
   const lastStepKey = steps[steps.length - 1]?.key;
 
+  function advanceStep(stepKey: string) {
+    completeStep(boilerId, stepKey, stepNote.trim());
+    setStepNote("");
+  }
+
   if (steps.length === 0) return null;
 
   return (
@@ -143,6 +148,8 @@ export function EditableStepList({
       {steps.map((step, idx) => {
         const isCurrent = mode === "active" && idx === nextIndex;
         const isDone = step.completed;
+        const isFuture =
+          mode === "active" && nextIndex >= 0 && !isDone && idx > nextIndex;
         const isLast = idx === steps.length - 1;
         return (
           <li key={step.key} className="relative flex gap-3 pb-2">
@@ -155,15 +162,32 @@ export function EditableStepList({
             )}
             <button
               type="button"
-              onClick={() =>
-                setStepCompleted(boilerId, inspection.id, step.key, !isDone)
+              disabled={isFuture}
+              onMouseDown={(e) => {
+                if (isFuture) return;
+                if (isCurrent) {
+                  e.preventDefault();
+                  advanceStep(step.key);
+                  return;
+                }
+                setStepCompleted(boilerId, inspection.id, step.key, !isDone);
+              }}
+              title={
+                isFuture
+                  ? "Complete earlier steps first"
+                  : isDone
+                  ? "Mark as not done"
+                  : isCurrent
+                  ? "Complete this step"
+                  : "Mark as done"
               }
-              title={isDone ? "Mark as not done" : "Mark as done"}
               className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition ${
-                isDone
+                isFuture
+                  ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                  : isDone
                   ? "border-emerald-400 bg-emerald-400 text-white hover:bg-emerald-500"
                   : isCurrent
-                  ? "border-maroon-700 bg-maroon-50 text-maroon-700"
+                  ? "border-maroon-700 bg-maroon-50 text-maroon-700 hover:bg-maroon-100"
                   : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
               }`}
             >
@@ -217,9 +241,9 @@ export function EditableStepList({
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      completeStep(boilerId, step.key, stepNote.trim());
-                      setStepNote("");
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      advanceStep(step.key);
                     }}
                     className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600"
                   >
