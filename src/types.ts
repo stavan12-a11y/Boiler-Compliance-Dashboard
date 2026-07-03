@@ -50,7 +50,6 @@ export interface Boiler {
   /** Maximum allowable working pressure stamped on the boiler nameplate. */
   stampedMawp: string;
   manufacturer: string;
-  installDate: string;
   location: string;
   /** Texas state boiler registration number. */
   texasBoilerNumber: string;

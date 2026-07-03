@@ -8,7 +8,6 @@ const EMPTY: NewBoilerInput = {
   capacity: "",
   stampedMawp: "",
   manufacturer: "",
-  installDate: new Date().toISOString().slice(0, 10),
   location: "",
   texasBoilerNumber: "",
   nationalBoardNumber: "",
@@ -80,11 +79,16 @@ export function AddBoilerModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <button type="button" aria-label="Close" className="absolute inset-0" onClick={onClose} />
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+      <div
+        role="presentation"
+        className="absolute inset-0"
+        onMouseDown={onClose}
+      />
       <form
         onSubmit={submit}
-        className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-white p-6 shadow-2xl"
+        onMouseDown={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-lg animate-fade-in rounded-2xl bg-white p-6 shadow-2xl"
       >
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -168,14 +172,6 @@ export function AddBoilerModal({
               value={form.manufacturer}
               onChange={(e) => set("manufacturer", e.target.value)}
               placeholder="e.g. Fulton"
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Install date">
-            <input
-              type="date"
-              value={form.installDate}
-              onChange={(e) => set("installDate", e.target.value)}
               className={inputCls}
             />
           </Field>

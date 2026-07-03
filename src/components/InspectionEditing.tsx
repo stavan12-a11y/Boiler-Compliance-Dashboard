@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Inspection } from "../types";
 import { useFleet } from "../store";
 import { isoToLocalInput, localInputToIso } from "../lib/helpers";
@@ -120,6 +120,15 @@ function StepDateField({
   );
 }
 
+/** Prevent textarea blur from swallowing the first button click. */
+function advanceButtonProps(onAdvance: () => void) {
+  return {
+    type: "button" as const,
+    onMouseDown: (e: React.MouseEvent) => e.preventDefault(),
+    onClick: onAdvance,
+  };
+}
+
 /** Workflow step list. In "active" mode the next pending step can be advanced. */
 export function EditableStepList({
   boilerId,
@@ -134,11 +143,17 @@ export function EditableStepList({
   const steps = inspection.steps;
   const nextIndex = steps.findIndex((s) => !s.completed);
   const [stepNote, setStepNote] = useState("");
+  const advancingRef = useRef(false);
   const lastStepKey = steps[steps.length - 1]?.key;
 
   function advanceStep(stepKey: string) {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
     completeStep(boilerId, stepKey, stepNote.trim());
     setStepNote("");
+    window.setTimeout(() => {
+      advancingRef.current = false;
+    }, 300);
   }
 
   if (steps.length === 0) return null;
@@ -162,32 +177,27 @@ export function EditableStepList({
             )}
             <button
               type="button"
-              disabled={isFuture}
-              onMouseDown={(e) => {
-                if (isFuture) return;
-                if (isCurrent) {
-                  e.preventDefault();
-                  advanceStep(step.key);
-                  return;
-                }
+              disabled={isFuture || isCurrent}
+              onClick={() => {
+                if (isFuture || isCurrent) return;
                 setStepCompleted(boilerId, inspection.id, step.key, !isDone);
               }}
               title={
                 isFuture
                   ? "Complete earlier steps first"
+                  : isCurrent
+                  ? "Use the Complete button below"
                   : isDone
                   ? "Mark as not done"
-                  : isCurrent
-                  ? "Complete this step"
                   : "Mark as done"
               }
               className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition ${
-                isFuture
-                  ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                isFuture || isCurrent
+                  ? isCurrent
+                    ? "cursor-default border-maroon-700 bg-maroon-50 text-maroon-700"
+                    : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
                   : isDone
                   ? "border-emerald-400 bg-emerald-400 text-white hover:bg-emerald-500"
-                  : isCurrent
-                  ? "border-maroon-700 bg-maroon-50 text-maroon-700 hover:bg-maroon-100"
                   : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
               }`}
             >
@@ -217,7 +227,6 @@ export function EditableStepList({
                 )}
               </div>
 
-              {/* Notes — always editable so mistakes can be fixed */}
               {(isDone || mode === "history") && (
                 <div className="mt-1">
                   <InlineText
@@ -240,11 +249,7 @@ export function EditableStepList({
                     className="w-full resize-none rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
                   />
                   <button
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      advanceStep(step.key);
-                    }}
+                    {...advanceButtonProps(() => advanceStep(step.key))}
                     className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600"
                   >
                     <CheckIcon className="h-3.5 w-3.5" />

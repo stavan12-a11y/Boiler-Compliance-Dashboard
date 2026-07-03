@@ -21,6 +21,7 @@ type LegacyBoiler = Omit<
 
 export function migrateBoiler(raw: LegacyBoiler): Boiler {
   const {
+    installDate: _installDate,
     inspectionIntervalDays: _days,
     pressureRating,
     inspectionIntervalYears: rawYears,
@@ -29,7 +30,7 @@ export function migrateBoiler(raw: LegacyBoiler): Boiler {
     nationalBoardNumber,
     boilerUse,
     ...rest
-  } = raw;
+  } = raw as LegacyBoiler & { installDate?: string };
 
   const inspectionIntervalYears =
     typeof rawYears === "number"

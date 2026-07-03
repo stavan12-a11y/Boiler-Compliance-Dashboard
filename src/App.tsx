@@ -12,6 +12,7 @@ import { SyncIndicator } from "./components/SyncIndicator";
 import { StatusDot } from "./components/ui";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginScreen } from "./auth/LoginScreen";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
   DownloadIcon,
   FlameIcon,
@@ -244,8 +245,10 @@ function AuthedApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AuthedApp />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AuthedApp />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

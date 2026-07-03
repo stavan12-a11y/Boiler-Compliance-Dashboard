@@ -251,7 +251,7 @@ export function BoilerDetail({
                   <span className="text-slate-300">·</span>
                   Next due:{" "}
                   <span className="font-medium text-slate-700">
-                    {formatDate(schedule.nextDueDate.toISOString())}
+                    {schedule.nextDueLabel}
                   </span>
                 </div>
 

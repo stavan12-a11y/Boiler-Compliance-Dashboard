@@ -51,7 +51,6 @@ const BOILER_FIELD_LABELS: Partial<Record<keyof Boiler, string>> = {
   capacity: "Capacity",
   stampedMawp: "Stamped MAWP",
   manufacturer: "Manufacturer",
-  installDate: "Install date",
   location: "Location",
   texasBoilerNumber: "Texas boiler #",
   nationalBoardNumber: "National board number",
@@ -73,7 +72,6 @@ export interface NewBoilerInput {
   capacity: string;
   stampedMawp: string;
   manufacturer: string;
-  installDate: string;
   location: string;
   texasBoilerNumber: string;
   nationalBoardNumber: string;
@@ -92,7 +90,6 @@ export function boilerFaceplateInput(source: Boiler): NewBoilerInput {
     capacity: source.capacity,
     stampedMawp: source.stampedMawp,
     manufacturer: source.manufacturer,
-    installDate: source.installDate,
     location: source.location,
     texasBoilerNumber: "",
     nationalBoardNumber: "",
@@ -226,6 +223,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
   );
   const firstRun = useRef(true);
   const applyingRemote = useRef(false);
+  const blockRemoteUntil = useRef(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const kpiTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -337,6 +335,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
           filter: `id=eq.${STATE_ROW_ID}`,
         },
         (payload) => {
+          if (Date.now() < blockRemoteUntil.current) return;
           const incoming = (payload.new as { data?: Partial<AppState> } | null)
             ?.data;
           if (incoming) {
@@ -377,6 +376,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       applyingRemote.current = false;
       return;
     }
+    blockRemoteUntil.current = Date.now() + 2500;
     const sb = supabase;
     setSyncStatus("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -436,7 +436,6 @@ export function FleetProvider({ children }: { children: ReactNode }) {
         capacity: input.capacity,
         stampedMawp: input.stampedMawp,
         manufacturer: input.manufacturer,
-        installDate: input.installDate,
         location: input.location,
         texasBoilerNumber: input.texasBoilerNumber,
         nationalBoardNumber: input.nationalBoardNumber,
@@ -535,6 +534,8 @@ export function FleetProvider({ children }: { children: ReactNode }) {
         mapBoiler(prev, boilerId, (b) => {
           if (!b.activeInspection) return b;
           const insp = b.activeInspection;
+          const target = insp.steps.find((s) => s.key === stepKey);
+          if (!target || target.completed) return b;
           const steps = insp.steps.map((s) =>
             s.key === stepKey
               ? { ...s, completed: true, completedAt: nowIso(), notes }

@@ -1,6 +1,5 @@
 import type { Boiler } from "../types";
 import { getBoilerStatus, getScheduleInfo, STATUS_META } from "../lib/derive";
-import { formatDate } from "../lib/helpers";
 import { Warning } from "./ui";
 import {
   AlertIcon,
@@ -89,7 +88,7 @@ export function BoilerCard({
             <ClockIcon className="h-3.5 w-3.5 text-slate-400" />
             Next due:{" "}
             <span className="font-semibold text-slate-800">
-              {formatDate(schedule.nextDueDate.toISOString())}
+              {schedule.nextDueLabel}
             </span>
           </span>
           <div className="flex flex-wrap items-center gap-1.5">

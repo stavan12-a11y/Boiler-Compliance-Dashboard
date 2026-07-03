@@ -2,7 +2,9 @@ import type { Boiler, BoilerStatus, Inspection } from "../types";
 import {
   addYears,
   daysBetween,
+  formatDate,
   parseDate,
+  todayDate,
   WARNING_WINDOW_DAYS,
 } from "./helpers";
 
@@ -41,6 +43,8 @@ export interface ScheduleInfo {
   /** Reference date used to compute the next-due date. */
   basisDate: string;
   nextDueDate: Date;
+  /** Safe display string for the next-due date. */
+  nextDueLabel: string;
   /** Positive => overdue by N days. */
   daysOverdue: number;
   /** Days remaining until due (negative when overdue). */
@@ -50,17 +54,24 @@ export interface ScheduleInfo {
 }
 
 export function getScheduleInfo(boiler: Boiler, now = new Date()): ScheduleInfo {
-  const basis = getLastInspectedDate(boiler) ?? boiler.installDate;
-  const nextDueDate = addYears(
-    parseDate(basis),
-    boiler.inspectionIntervalYears
-  );
-  const daysUntilDue = daysBetween(now, nextDueDate);
+  const basis = getLastInspectedDate(boiler) ?? todayDate();
+  let basisDate = parseDate(basis);
+  if (Number.isNaN(basisDate.getTime())) {
+    basisDate = parseDate(todayDate());
+  }
+  const nextDueDate = addYears(basisDate, boiler.inspectionIntervalYears);
+  const safeDue =
+    Number.isNaN(nextDueDate.getTime()) ? parseDate(todayDate()) : nextDueDate;
+  const daysUntilDue = daysBetween(now, safeDue);
   const isOverdue = daysUntilDue < 0;
   const isDueSoon = !isOverdue && daysUntilDue <= WARNING_WINDOW_DAYS;
+  const dueIso = Number.isNaN(safeDue.getTime())
+    ? todayDate()
+    : safeDue.toISOString().slice(0, 10);
   return {
     basisDate: basis,
-    nextDueDate,
+    nextDueDate: safeDue,
+    nextDueLabel: formatDate(dueIso),
     daysOverdue: isOverdue ? -daysUntilDue : 0,
     daysUntilDue,
     isOverdue,
