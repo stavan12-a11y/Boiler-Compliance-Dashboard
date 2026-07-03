@@ -1,7 +1,11 @@
 import type { Boiler } from "../types";
-import { getBoilerStatus, STATUS_META } from "../lib/derive";
+import { getBoilerStatus, getScheduleInfo, STATUS_META } from "../lib/derive";
+import { formatDate } from "../lib/helpers";
+import { Warning } from "./ui";
 import {
+  AlertIcon,
   ArrowRightIcon,
+  ClockIcon,
   LayersIcon,
   MapPinIcon,
 } from "./icons";
@@ -22,6 +26,7 @@ export function BoilerCard({
 }) {
   const status = getBoilerStatus(boiler);
   const meta = STATUS_META[status];
+  const schedule = getScheduleInfo(boiler);
 
   return (
     <div
@@ -73,6 +78,32 @@ export function BoilerCard({
           </p>
         </div>
       </button>
+
+      <div className="border-t border-slate-100 px-4 py-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="flex items-center gap-1.5 text-xs text-slate-600">
+            <ClockIcon className="h-3.5 w-3.5 text-slate-400" />
+            Next due:{" "}
+            <span className="font-semibold text-slate-800">
+              {formatDate(schedule.nextDueDate.toISOString())}
+            </span>
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {schedule.isOverdue && (
+              <Warning tone="danger">
+                <AlertIcon className="h-3 w-3" />
+                Overdue {schedule.daysOverdue}d
+              </Warning>
+            )}
+            {schedule.isDueSoon && (
+              <Warning tone="warn">
+                <ClockIcon className="h-3 w-3" />
+                Due in {schedule.daysUntilDue}d
+              </Warning>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
