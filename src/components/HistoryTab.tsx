@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Boiler, Inspection } from "../types";
 import { useFleet } from "../store";
 import { inspectionDurationMs } from "../lib/derive";
-import { formatDate, formatDuration } from "../lib/helpers";
+import { formatDate, formatDuration, parseDate } from "../lib/helpers";
 import {
   AlertIcon,
   CheckIcon,
@@ -134,9 +134,13 @@ export function HistoryTab({ boiler }: { boiler: Boiler }) {
     );
   }
 
+  const inspections = [...boiler.history].sort(
+    (a, b) => parseDate(b.date).getTime() - parseDate(a.date).getTime()
+  );
+
   return (
     <div className="space-y-2.5">
-      {boiler.history.map((insp) => (
+      {inspections.map((insp) => (
         <HistoryEntry key={insp.id} boilerId={boiler.id} inspection={insp} />
       ))}
     </div>

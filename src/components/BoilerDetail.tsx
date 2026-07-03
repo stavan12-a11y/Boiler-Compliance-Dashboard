@@ -203,14 +203,6 @@ export function BoilerDetail({
                     }
                   />
                   <EditableField
-                    label="Install date"
-                    type="date"
-                    value={boiler.installDate}
-                    onCommit={(v) =>
-                      updateBoilerField(boiler.id, "installDate", v)
-                    }
-                  />
-                  <EditableField
                     label="Location"
                     value={boiler.location}
                     icon={<MapPinIcon className="h-3 w-3" />}
