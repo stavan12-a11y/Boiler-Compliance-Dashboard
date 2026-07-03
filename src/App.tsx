@@ -133,11 +133,10 @@ function Dashboard() {
 
         <SummaryCards boilers={boilers} />
 
-        <Sidebar boilers={boilers} onSelect={setSelectedId} />
-
-        <div>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
+        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+          <div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
               <button
                 type="button"
                 onClick={() => setAdding(true)}
@@ -145,10 +144,10 @@ function Dashboard() {
               >
                 <PlusIcon className="h-4 w-4" />
                 Add boiler
-            </button>
-          </div>
+              </button>
+            </div>
 
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 {FILTERS.map((f) => (
                   <button
@@ -202,6 +201,9 @@ function Dashboard() {
                 ))}
               </div>
             )}
+          </div>
+
+          <Sidebar boilers={boilers} onSelect={setSelectedId} />
         </div>
       </main>
 
