@@ -45,9 +45,16 @@ function Field({
 const inputCls =
   "input";
 
-export function AddBoilerModal({ onClose }: { onClose: () => void }) {
+export function AddBoilerModal({
+  onClose,
+  initialValues,
+}: {
+  onClose: () => void;
+  initialValues?: NewBoilerInput;
+}) {
   const { addBoiler } = useFleet();
-  const [form, setForm] = useState<NewBoilerInput>(EMPTY);
+  const [form, setForm] = useState<NewBoilerInput>(() => initialValues ?? EMPTY);
+  const isDuplicate = Boolean(initialValues?.duplicatedFrom);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -80,7 +87,18 @@ export function AddBoilerModal({ onClose }: { onClose: () => void }) {
         className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-white p-6 shadow-2xl"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Add a boiler</h2>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {isDuplicate ? "Duplicate boiler" : "Add a boiler"}
+            </h2>
+            {isDuplicate && (
+              <p className="mt-0.5 text-xs text-slate-500">
+                Faceplate copied from{" "}
+                <span className="font-semibold">{initialValues?.duplicatedFrom}</span>.
+                Update the name and registration numbers.
+              </p>
+            )}
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -209,7 +227,7 @@ export function AddBoilerModal({ onClose }: { onClose: () => void }) {
             className="btn-primary"
           >
             <PlusIcon className="h-4 w-4" />
-            Add boiler
+            {isDuplicate ? "Create duplicate" : "Add boiler"}
           </button>
         </div>
       </form>

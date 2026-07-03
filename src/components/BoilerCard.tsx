@@ -6,6 +6,7 @@ import {
   AlertIcon,
   ArrowRightIcon,
   ClockIcon,
+  CopyIcon,
   LayersIcon,
   MapPinIcon,
 } from "./icons";
@@ -20,9 +21,11 @@ const BANNER: Record<ReturnType<typeof getBoilerStatus>, string> = {
 export function BoilerCard({
   boiler,
   onOpen,
+  onDuplicate,
 }: {
   boiler: Boiler;
   onOpen: () => void;
+  onDuplicate: () => void;
 }) {
   const status = getBoilerStatus(boiler);
   const meta = STATUS_META[status];
@@ -90,6 +93,18 @@ export function BoilerCard({
             </span>
           </span>
           <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDuplicate();
+              }}
+              title="Duplicate faceplate for a similar boiler"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold text-slate-500 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 hover:text-maroon-700"
+            >
+              <CopyIcon className="h-3 w-3" />
+              Duplicate
+            </button>
             {schedule.isOverdue && (
               <Warning tone="danger">
                 <AlertIcon className="h-3 w-3" />

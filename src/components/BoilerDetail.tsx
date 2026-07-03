@@ -16,6 +16,7 @@ import {
   AlertIcon,
   ArrowLeftIcon,
   ClockIcon,
+  CopyIcon,
   DownloadIcon,
   GaugeIcon,
   LayersIcon,
@@ -34,9 +35,11 @@ const TAB_LABELS: Record<Tab, string> = {
 export function BoilerDetail({
   boiler,
   onClose,
+  onDuplicate,
 }: {
   boiler: Boiler;
   onClose: () => void;
+  onDuplicate: () => void;
 }) {
   const { updateBoilerField, removeBoiler, activity } = useFleet();
   const [tab, setTab] = useState<Tab>("overview");
@@ -86,14 +89,24 @@ export function BoilerDetail({
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={exportBoiler}
-              className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-white/20 transition hover:bg-white/20"
-            >
-              <DownloadIcon className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Export CSV</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onDuplicate}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-white/20 transition hover:bg-white/20"
+              >
+                <CopyIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Duplicate</span>
+              </button>
+              <button
+                type="button"
+                onClick={exportBoiler}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-white/20 transition hover:bg-white/20"
+              >
+                <DownloadIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Export CSV</span>
+              </button>
+            </div>
           </div>
         </div>
 

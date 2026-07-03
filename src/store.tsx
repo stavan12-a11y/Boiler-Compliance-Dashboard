@@ -79,6 +79,27 @@ export interface NewBoilerInput {
   nationalBoardNumber: string;
   boilerUse: string;
   inspectionIntervalYears: number;
+  /** Not persisted — used for the activity log when duplicating a boiler. */
+  duplicatedFrom?: string;
+}
+
+/** Copy faceplate specs from an existing boiler into a new-boiler form. */
+export function boilerFaceplateInput(source: Boiler): NewBoilerInput {
+  const copySuffix = / \(copy(?: \d+)?\)$/.test(source.name) ? "" : " (copy)";
+  return {
+    name: `${source.name}${copySuffix}`,
+    type: source.type,
+    capacity: source.capacity,
+    stampedMawp: source.stampedMawp,
+    manufacturer: source.manufacturer,
+    installDate: source.installDate,
+    location: source.location,
+    texasBoilerNumber: "",
+    nationalBoardNumber: "",
+    boilerUse: source.boilerUse,
+    inspectionIntervalYears: source.inspectionIntervalYears,
+    duplicatedFrom: source.name,
+  };
 }
 
 export interface StartInspectionInput {
@@ -428,7 +449,9 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       pushLog({
         boilerId: newBoiler.id,
         boilerName: newBoiler.name,
-        summary: "Added boiler to the fleet",
+        summary: input.duplicatedFrom
+          ? `Added boiler (duplicated from "${input.duplicatedFrom}")`
+          : "Added boiler to the fleet",
       });
     },
     [pushLog]

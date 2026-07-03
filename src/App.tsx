@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FleetProvider, useFleet } from "./store";
+import { FleetProvider, useFleet, boilerFaceplateInput, type NewBoilerInput } from "./store";
 import { getBoilerStatus } from "./lib/derive";
 import type { BoilerStatus } from "./types";
 import { SummaryCards } from "./components/SummaryCards";
@@ -33,11 +33,29 @@ function Dashboard() {
   const { logout } = useAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [addBoilerInitial, setAddBoilerInitial] = useState<NewBoilerInput | undefined>();
   const [showDownload, setShowDownload] = useState(false);
   const [filter, setFilter] = useState<BoilerStatus | "all">("all");
   const [query, setQuery] = useState("");
 
   const selected = boilers.find((b) => b.id === selectedId) ?? null;
+
+  function openAddBoiler(initial?: NewBoilerInput) {
+    setAddBoilerInitial(initial);
+    setAdding(true);
+  }
+
+  function closeAddBoiler() {
+    setAdding(false);
+    setAddBoilerInitial(undefined);
+  }
+
+  function duplicateBoiler(boilerId: string) {
+    const source = boilers.find((b) => b.id === boilerId);
+    if (!source) return;
+    setSelectedId(null);
+    openAddBoiler(boilerFaceplateInput(source));
+  }
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -117,7 +135,7 @@ function Dashboard() {
               <h3 className="text-lg font-bold text-slate-900">Boiler fleet</h3>
               <button
                 type="button"
-                onClick={() => setAdding(true)}
+                onClick={() => openAddBoiler()}
                 className="btn-primary whitespace-nowrap"
               >
                 <PlusIcon className="h-4 w-4" />
@@ -169,6 +187,7 @@ function Dashboard() {
                     key={boiler.id}
                     boiler={boiler}
                     onOpen={() => setSelectedId(boiler.id)}
+                    onDuplicate={() => duplicateBoiler(boiler.id)}
                   />
                 ))}
               </div>
@@ -180,9 +199,19 @@ function Dashboard() {
       </main>
 
       {selected && (
-        <BoilerDetail boiler={selected} onClose={() => setSelectedId(null)} />
+        <BoilerDetail
+          boiler={selected}
+          onClose={() => setSelectedId(null)}
+          onDuplicate={() => duplicateBoiler(selected.id)}
+        />
       )}
-      {adding && <AddBoilerModal onClose={() => setAdding(false)} />}
+      {adding && (
+        <AddBoilerModal
+          key={addBoilerInitial?.duplicatedFrom ?? "new"}
+          onClose={closeAddBoiler}
+          initialValues={addBoilerInitial}
+        />
+      )}
       {showDownload && (
         <DownloadDataModal
           boilers={boilers}
