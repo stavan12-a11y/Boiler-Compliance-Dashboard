@@ -190,9 +190,8 @@ export function BoilerDetail({
                     onCommit={(v) => updateBoilerField(boiler.id, "location", v)}
                   />
                   <EditableField
-                    label="Inspection interval"
+                    label="Inspection interval (years)"
                     type="number"
-                    suffix="years"
                     value={String(boiler.inspectionIntervalYears)}
                     onCommit={(v) => {
                       const n = Number(v);
