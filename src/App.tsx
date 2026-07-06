@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { FleetProvider, useFleet, boilerFaceplateInput, type NewBoilerInput } from "./store";
 import {
   getUniqueLocations,
-  groupBoilersByLocation,
   normalizeLocation,
 } from "./lib/derive";
 import { SummaryCards } from "./components/SummaryCards";
@@ -75,11 +74,6 @@ function Dashboard() {
       );
     });
   }, [boilers, locationFilter, query]);
-
-  const visibleByLocation = useMemo(
-    () => groupBoilersByLocation(visible),
-    [visible]
-  );
 
   return (
     <div className="min-h-screen">
@@ -200,32 +194,15 @@ function Dashboard() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-8">
-                {visibleByLocation.map(({ location, boilers: group }) => (
-                  <section key={location}>
-                    {locationFilter === "all" && (
-                      <div className="mb-3 flex items-center gap-2">
-                        <MapPinIcon className="h-4 w-4 text-maroon-700" />
-                        <h4 className="text-sm font-bold text-slate-900">
-                          {location}
-                        </h4>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-                          {group.length}
-                        </span>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      {group.map((boiler) => (
-                        <BoilerCard
-                          key={boiler.id}
-                          boiler={boiler}
-                          showLocation={locationFilter !== "all"}
-                          onOpen={() => setSelectedId(boiler.id)}
-                          onDuplicate={() => duplicateBoiler(boiler.id)}
-                        />
-                      ))}
-                    </div>
-                  </section>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {visible.map((boiler) => (
+                  <BoilerCard
+                    key={boiler.id}
+                    boiler={boiler}
+                    showLocation={locationFilter === "all"}
+                    onOpen={() => setSelectedId(boiler.id)}
+                    onDuplicate={() => duplicateBoiler(boiler.id)}
+                  />
                 ))}
               </div>
             )}
