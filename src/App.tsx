@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { FleetProvider, useFleet, boilerFaceplateInput, type NewBoilerInput } from "./store";
-import { getBoilerStatus } from "./lib/derive";
-import type { BoilerStatus } from "./types";
+import {
+  getUniqueLocations,
+  groupBoilersByLocation,
+  normalizeLocation,
+} from "./lib/derive";
 import { SummaryCards } from "./components/SummaryCards";
 import { BoilerCard } from "./components/BoilerCard";
 import { Sidebar } from "./components/Sidebar";
@@ -9,7 +12,6 @@ import { BoilerDetail } from "./components/BoilerDetail";
 import { AddBoilerModal } from "./components/AddBoilerModal";
 import { DownloadDataModal } from "./components/DownloadDataModal";
 import { SyncIndicator } from "./components/SyncIndicator";
-import { StatusDot } from "./components/ui";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginScreen } from "./auth/LoginScreen";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -18,16 +20,9 @@ import {
   FlameIcon,
   LoaderIcon,
   LogOutIcon,
+  MapPinIcon,
   PlusIcon,
 } from "./components/icons";
-
-const FILTERS: { key: BoilerStatus | "all"; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "active", label: "Underway" },
-  { key: "failed", label: "Needs repair" },
-  { key: "passed", label: "Complete" },
-  { key: "none", label: "Not started" },
-];
 
 function Dashboard() {
   const { boilers, kpiHistory } = useFleet();
@@ -36,7 +31,7 @@ function Dashboard() {
   const [adding, setAdding] = useState(false);
   const [addBoilerInitial, setAddBoilerInitial] = useState<NewBoilerInput | undefined>();
   const [showDownload, setShowDownload] = useState(false);
-  const [filter, setFilter] = useState<BoilerStatus | "all">("all");
+  const [locationFilter, setLocationFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
 
   const selected = boilers.find((b) => b.id === selectedId) ?? null;
@@ -58,10 +53,17 @@ function Dashboard() {
     openAddBoiler(boilerFaceplateInput(source));
   }
 
+  const locations = useMemo(() => getUniqueLocations(boilers), [boilers]);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return boilers.filter((b) => {
-      if (filter !== "all" && getBoilerStatus(b) !== filter) return false;
+      if (
+        locationFilter !== "all" &&
+        normalizeLocation(b.location) !== locationFilter
+      ) {
+        return false;
+      }
       if (!q) return true;
       return (
         b.name.toLowerCase().includes(q) ||
@@ -72,7 +74,12 @@ function Dashboard() {
         b.nationalBoardNumber.toLowerCase().includes(q)
       );
     });
-  }, [boilers, filter, query]);
+  }, [boilers, locationFilter, query]);
+
+  const visibleByLocation = useMemo(
+    () => groupBoilersByLocation(visible),
+    [visible]
+  );
 
   return (
     <div className="min-h-screen">
@@ -146,19 +153,30 @@ function Dashboard() {
 
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
-                {FILTERS.map((f) => (
+                <button
+                  type="button"
+                  onClick={() => setLocationFilter("all")}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                    locationFilter === "all"
+                      ? "bg-maroon-900 text-white"
+                      : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  All locations
+                </button>
+                {locations.map((location) => (
                   <button
-                    key={f.key}
+                    key={location}
                     type="button"
-                    onClick={() => setFilter(f.key)}
+                    onClick={() => setLocationFilter(location)}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      filter === f.key
+                      locationFilter === location
                         ? "bg-maroon-900 text-white"
                         : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
                     }`}
                   >
-                    {f.key !== "all" && <StatusDot status={f.key} size="sm" />}
-                    {f.label}
+                    <MapPinIcon className="h-3 w-3 shrink-0" />
+                    {location}
                   </button>
                 ))}
               </div>
@@ -182,14 +200,32 @@ function Dashboard() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {visible.map((boiler) => (
-                  <BoilerCard
-                    key={boiler.id}
-                    boiler={boiler}
-                    onOpen={() => setSelectedId(boiler.id)}
-                    onDuplicate={() => duplicateBoiler(boiler.id)}
-                  />
+              <div className="space-y-8">
+                {visibleByLocation.map(({ location, boilers: group }) => (
+                  <section key={location}>
+                    {locationFilter === "all" && (
+                      <div className="mb-3 flex items-center gap-2">
+                        <MapPinIcon className="h-4 w-4 text-maroon-700" />
+                        <h4 className="text-sm font-bold text-slate-900">
+                          {location}
+                        </h4>
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                          {group.length}
+                        </span>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {group.map((boiler) => (
+                        <BoilerCard
+                          key={boiler.id}
+                          boiler={boiler}
+                          showLocation={locationFilter !== "all"}
+                          onOpen={() => setSelectedId(boiler.id)}
+                          onDuplicate={() => duplicateBoiler(boiler.id)}
+                        />
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             )}

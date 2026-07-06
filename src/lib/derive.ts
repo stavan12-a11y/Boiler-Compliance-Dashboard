@@ -133,6 +133,37 @@ export function getFleetStats(boilers: Boiler[]): FleetStats {
   };
 }
 
+export const UNASSIGNED_LOCATION = "Unassigned";
+
+export function normalizeLocation(location: string): string {
+  const trimmed = location.trim();
+  return trimmed || UNASSIGNED_LOCATION;
+}
+
+export function getUniqueLocations(boilers: Boiler[]): string[] {
+  const locations = new Set(boilers.map((b) => normalizeLocation(b.location)));
+  return [...locations].sort((a, b) => {
+    if (a === UNASSIGNED_LOCATION) return 1;
+    if (b === UNASSIGNED_LOCATION) return -1;
+    return a.localeCompare(b);
+  });
+}
+
+export function groupBoilersByLocation(
+  boilers: Boiler[]
+): { location: string; boilers: Boiler[] }[] {
+  const groups = new Map<string, Boiler[]>();
+  for (const boiler of boilers) {
+    const location = normalizeLocation(boiler.location);
+    if (!groups.has(location)) groups.set(location, []);
+    groups.get(location)!.push(boiler);
+  }
+  return getUniqueLocations(boilers).map((location) => ({
+    location,
+    boilers: groups.get(location) ?? [],
+  }));
+}
+
 export const STATUS_META: Record<
   BoilerStatus,
   { label: string; dot: string; ring: string; text: string; badgeBg: string }

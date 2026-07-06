@@ -39,10 +39,12 @@ export function BoilerCard({
   boiler,
   onOpen,
   onDuplicate,
+  showLocation = true,
 }: {
   boiler: Boiler;
   onOpen: () => void;
   onDuplicate: () => void;
+  showLocation?: boolean;
 }) {
   const status = getBoilerStatus(boiler);
   const meta = STATUS_META[status];
@@ -99,10 +101,12 @@ export function BoilerCard({
             <span className="truncate">{boiler.type || "—"}</span>
           </p>
           <p className="truncate pl-5">{boiler.manufacturer || "—"}</p>
-          <p className="flex items-center gap-1.5">
-            <MapPinIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-            <span className="truncate">{boiler.location || "—"}</span>
-          </p>
+          {showLocation && (
+            <p className="flex items-center gap-1.5">
+              <MapPinIcon className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+              <span className="truncate">{boiler.location || "—"}</span>
+            </p>
+          )}
         </div>
       </button>
 
